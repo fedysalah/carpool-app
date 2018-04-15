@@ -2,8 +2,6 @@ import moment from 'moment';
 import * as firebase from 'firebase'
 import ActionTypes from '../actions/actiontypes';
 
-const firebaseUrl = __FIREBASEURL__;
-
 const defaultModel = {
   sessions: {
     'default': {

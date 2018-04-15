@@ -1,22 +1,20 @@
-import React from 'react';
-import moment from 'moment';
-import * as firebase from 'firebase'
+import React, {Component} from 'react';
 import 'firebase/auth'
 
-export default React.createClass({
-  getInitialState() {
-    return {
+export default class SettingsScreen extends Component {
+  state = {
       running: false
     };
-  },
-  processArchives() {
+  processArchives = () => {
     this.setState({ running: true }, () => {
       this.props.store.computeFromBeginning(() => this.setState({ running: false }));
     });
-  },
-  signOut() {
+  };
+
+  signOut = () => {
     this.props.signOut();
-  },
+  };
+
   render() {
     const buttonClass = this.state.running ? 'btn' : 'btn btn-negative';
     const buttonTitle = this.state.running ? 'Running ...' : 'Run';
@@ -67,4 +65,4 @@ export default React.createClass({
       </div>
     );
   }
-});
+};
