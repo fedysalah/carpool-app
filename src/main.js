@@ -18,14 +18,17 @@ const projectId = process.env.FIREBASE_PROJECT_ID;
 const storageBucket = process.env.FIREBASE_STORAGE_BUCKET;
 const messagingSenderId = process.env.FIREBASE_MESSAGING_SENDER_ID ;
 
-firebase.initializeApp({
+let config = {
     apiKey,
     authDomain,
     databaseURL,
     projectId,
     storageBucket,
     messagingSenderId
-});
+};
+console.log('config', config);
+
+firebase.initializeApp(config);
 
 
 require('moment/locale/fr');
