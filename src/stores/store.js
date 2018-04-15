@@ -1,5 +1,5 @@
 import moment from 'moment';
-import Firebase from 'firebase';
+import * as firebase from 'firebase'
 import ActionTypes from '../actions/actiontypes';
 
 const firebaseUrl = __FIREBASEURL__;
@@ -48,8 +48,8 @@ export default function Store(session) {
   let currentDay = moment();
 
   const SessionRef = __DEV__
-    ? new Firebase(`${firebaseUrl}/web/carpool/devsessions/${session}`)
-    : new Firebase(`${firebaseUrl}/web/carpool/sessions/${session}`);
+    ? firebase.database().ref(`web/carpool/devsessions/${session}`)
+    : firebase.database().ref(`web/carpool/sessions/${session}`);
   const UsersRef = SessionRef.child('users');
   const ArchiveRef = SessionRef.child('archive');
 

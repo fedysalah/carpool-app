@@ -6,3 +6,4 @@ node_modules
 /package
 /secret.json
 /firebase.json
+.idea

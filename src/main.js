@@ -8,6 +8,19 @@ import CalendarScreen from './screens/calendarscreen';
 import SettingsScreen from './screens/settingsscreen';
 import LocationScreen from './screens/locationscreen';
 
+import * as firebase from 'firebase'
+import 'firebase/auth'
+
+const config = {
+  apiKey: "AIzaSyAtcsQKYqEoFQE35gsrLf7C7I8bczJaufI",
+  authDomain: "carpoolapptest.firebaseapp.com",
+  databaseURL: "https://carpoolapptest.firebaseio.com",
+  projectId: "carpoolapptest",
+  storageBucket: "carpoolapptest.appspot.com",
+  messagingSenderId: "143803579783"
+};
+firebase.initializeApp(config);
+
 require('babel-polyfill');
 require('moment/locale/fr');
 
@@ -15,8 +28,6 @@ navigator.vibrate = navigator.vibrate ||
   navigator.webkitVibrate ||
   navigator.mozVibrate ||
   navigator.msVibrate;
-
-const firebaseUrl = __FIREBASEURL__;
 
 const Screens = Object.freeze({
   Day: Symbol('Day'),
@@ -42,6 +53,14 @@ const App = React.createClass({
   componentWillUnmount() {
     this.cancelSubscription();
   },
+
+  signOut(){
+    console.log('signing out');
+    firebase.auth().signOut().then(function() {
+      window.location.reload();
+    });
+  },
+
   render() {
     let screen = <h3>Not a screen ????</h3>;
     if (this.state.screen === Screens.Day) {
@@ -49,7 +68,7 @@ const App = React.createClass({
     } else if (this.state.screen === Screens.Calendar) {
       screen = <CalendarScreen store={this.props.store} />;
     } else if (this.state.screen === Screens.Settings) {
-      screen = <SettingsScreen store={this.props.store} auth={this.props.auth} />;
+      screen = <SettingsScreen store={this.props.store} auth={this.props.auth} signOut={this.signOut} />;
     } else if (this.state.screen === Screens.Location) {
       screen = <LocationScreen store={this.props.locationStore} />;
     }
@@ -58,6 +77,8 @@ const App = React.createClass({
         window.navigator.vibrate(200);
       }
     }
+
+
     return (
       <div>
         {screen}
@@ -98,26 +119,32 @@ if (false) {
   const session = '1';
   ReactDOM.render(<App store={Store(session)} />, document.getElementById('app'));
 } else {
-  const ref = new Firebase(firebaseUrl);
-  ref.onAuth(authData => {
+  const ref = firebase.database();
+  firebase.auth().onAuthStateChanged(function(authData) {
     if (authData) {
       console.log("Authenticated onAuth successfully with payload: ", authData);
-      ref.child(`web/carpool/${__DEV__ ? 'dev' : ''}google/${authData.google.id}`).set(authData.google.displayName);
+      console.log("authData.providerData", authData.providerData)
+      ref.ref(`web/carpool/${__DEV__ ? 'dev' : ''}google/${authData.providerData[0].uuid}`).set(authData.providerData[0].displayName);
       const session = '1';
-      ReactDOM.render(<App store={Store(session)} locationStore={LocationStore(session)} auth={authData} />, document.getElementById('app'));
-    }
+      console.log('authData.providerData[0]', authData.providerData[0])
+      ReactDOM.render(<App store={Store(session)} locationStore={LocationStore(session)} auth={authData.providerData[0]} />, document.getElementById('app'));
+    } 
   });
-  const authData = ref.getAuth();
+
+  var authData = firebase.auth().currentUser;
   if (authData) {
     console.log('already auth', authData);
   } else {
     const Login = React.createClass({
       login() {
-        ref.authWithOAuthRedirect("google", (error, authData) => {
+        console.log('attemting to auth')
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithRedirect(provider);
+        /*ref.authWithOAuthRedirect("google", (error, authData) => {
           if (error) {
             console.log("Authentication Failed!", error);
           }
-        });
+        });*/
       },
       render() {
         return (
