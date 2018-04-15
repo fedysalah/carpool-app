@@ -5,7 +5,8 @@
   "main": "src/main.js",
   "scripts": {
     "init-env": "ln -s ./public/images ./images; touch secret.json",
-    "start": "NODE_ENV=dev webpack-dev-server -d --colors --hot --inline --progress",
+    "start": "NODE_ENV=production webpack-dev-server -d --colors --hot --inline --progress",
+    "start-dev": "NODE_ENV=dev webpack-dev-server -d --colors --hot --inline --progress",
     "pack": "npm run build && rm -rf ./package; cp -r ./public ./package; cp ./dist/carpool.js ./package/",
     "build": "NODE_ENV=production webpack -p --colors --progress",
     "deploy": "firebase deploy",
