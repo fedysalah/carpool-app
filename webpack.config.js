@@ -1,59 +1,62 @@
 const webpack = require('webpack');
-const { resolve } = require('path');
+const {resolve} = require('path');
 
 const isProd = process.env.NODE_ENV === 'production';
-let secret;
-if (!isProd) {
-    secret = require('./secret');
+
+let plugins;
+
+if (isProd) {
+    plugins = [
+        new webpack.optimize.ModuleConcatenationPlugin(),
+        new webpack.optimize.OccurrenceOrderPlugin(),
+        new webpack.LoaderOptionsPlugin({
+            minimize: true,
+            debug: false
+        }),
+        new webpack.optimize.UglifyJsPlugin({
+            beautify: false,
+            compress: {
+                warnings: false,
+                screw_ie8: true,
+                conditionals: true,
+                unused: true,
+                comparisons: true,
+                sequences: true,
+                dead_code: true,
+                evaluate: true,
+                if_return: true,
+                join_vars: true,
+            },
+            output: {
+                comments: false,
+            }
+        }),
+        new webpack.DefinePlugin({
+            '__DEV__': false,
+            'process.env': {NODE_ENV: JSON.stringify('production')}
+        }),
+    ];
+} else {
+    const secret = require('./secret');
+    plugins = [
+        new webpack.optimize.ModuleConcatenationPlugin(),
+        new webpack.DefinePlugin({
+            '__DEV__': true,
+            'process.env': {
+                NODE_ENV: JSON.stringify('dev'),
+                FIREBASE_API_KEY: JSON.stringify(secret.apiKey),
+                FIREBASE_AUTH_DOMAIN: JSON.stringify(secret.authDomain),
+                FIREBASE_DB_URL: JSON.stringify(secret.databaseURL),
+                FIREBASE_PROJECT_ID: JSON.stringify(secret.projectId),
+                FIREBASE_STORAGE_BUCKET: JSON.stringify(secret.storageBucket),
+                FIREBASE_MESSAGING_SENDER_ID: JSON.stringify(secret.messagingSenderId)
+            }
+        }),
+        new webpack.NamedModulesPlugin(),
+        new webpack.HotModuleReplacementPlugin(),
+    ];
 }
 
-const devPlugins = [
-    new webpack.optimize.ModuleConcatenationPlugin(),
-    new webpack.DefinePlugin({
-        '__DEV__':  true,
-        'process.env': {
-            NODE_ENV: JSON.stringify('dev'),
-            FIREBASE_API_KEY: JSON.stringify(secret.apiKey),
-            FIREBASE_AUTH_DOMAIN: JSON.stringify(secret.authDomain),
-            FIREBASE_DB_URL : JSON.stringify(secret.databaseURL),
-            FIREBASE_PROJECT_ID : JSON.stringify(secret.projectId),
-            FIREBASE_STORAGE_BUCKET : JSON.stringify(secret.storageBucket),
-            FIREBASE_MESSAGING_SENDER_ID : JSON.stringify(secret.messagingSenderId)
-        }
-    }),
-    new webpack.NamedModulesPlugin(),
-    new webpack.HotModuleReplacementPlugin(),
-];
-const prodPlugins = [
-    new webpack.optimize.ModuleConcatenationPlugin(),
-    new webpack.optimize.OccurrenceOrderPlugin(),
-    new webpack.LoaderOptionsPlugin({
-        minimize: true,
-        debug: false
-    }),
-    new webpack.optimize.UglifyJsPlugin({
-        beautify: false,
-        compress: {
-            warnings: false,
-            screw_ie8: true,
-            conditionals: true,
-            unused: true,
-            comparisons: true,
-            sequences: true,
-            dead_code: true,
-            evaluate: true,
-            if_return: true,
-            join_vars: true,
-        },
-        output: {
-            comments: false,
-        }
-    }),
-    new webpack.DefinePlugin({
-        '__DEV__':  false,
-        'process.env': { NODE_ENV: JSON.stringify('production') }
-    }),
-];
 
 module.exports = {
     output: {
@@ -85,5 +88,5 @@ module.exports = {
             },
         ]
     },
-    plugins: isProd ? prodPlugins : devPlugins
+    plugins
 };
