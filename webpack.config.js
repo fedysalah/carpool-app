@@ -7,14 +7,16 @@ const isProd = process.env.NODE_ENV === 'production';
 const devPlugins = [
     new webpack.optimize.ModuleConcatenationPlugin(),
     new webpack.DefinePlugin({
-        '__FIREBASE_API_KEY__': '\"' + secret.apiKey + '\"',
-        '__FIREBASE_AUTH_DOMAIN__': '\"' + secret.authDomain + '\"',
-        '__FIREBASE_DB_URL__': '\"' + secret.databaseURL + '\"',
-        '__FIREBASE_PROJECT_ID__': '\"' + secret.projectId + '\"',
-        '__FIREBASE_STORAGE_BUCKET__': '\"' + secret.storageBucket + '\"',
-        '__FIREBASE_MESSAGING_SENDER_ID__': '\"' + secret.messagingSenderId + '\"',
         '__DEV__':  true,
-        'process.env': { NODE_ENV: JSON.stringify('dev') }
+        'process.env': {
+            NODE_ENV: JSON.stringify('dev'),
+            FIREBASE_API_KEY: JSON.stringify(secret.apiKey),
+            FIREBASE_AUTH_DOMAIN: JSON.stringify(secret.authDomain),
+            FIREBASE_DB_URL : JSON.stringify(secret.databaseURL),
+            FIREBASE_PROJECT_ID : JSON.stringify(secret.projectId),
+            FIREBASE_STORAGE_BUCKET : JSON.stringify(secret.storageBucket),
+            FIREBASE_MESSAGING_SENDER_ID : JSON.stringify(secret.messagingSenderId)
+        }
     }),
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
@@ -45,12 +47,6 @@ const prodPlugins = [
         }
     }),
     new webpack.DefinePlugin({
-        '__FIREBASE_API_KEY__': '\"' + secret.apiKey + '\"',
-        '__FIREBASE_AUTH_DOMAIN__': '\"' + secret.authDomain + '\"',
-        '__FIREBASE_DB_URL__': '\"' + secret.databaseURL + '\"',
-        '__FIREBASE_PROJECT_ID__': '\"' + secret.projectId + '\"',
-        '__FIREBASE_STORAGE_BUCKET__': '\"' + secret.storageBucket + '\"',
-        '__FIREBASE_MESSAGING_SENDER_ID__': '\"' + secret.messagingSenderId + '\"',
         '__DEV__':  false,
         'process.env': { NODE_ENV: JSON.stringify('production') }
     }),

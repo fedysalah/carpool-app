@@ -11,14 +11,23 @@ import LocationScreen from './screens/locationscreen';
 import * as firebase from 'firebase'
 import 'firebase/auth'
 
+const apiKey = process.env.FIREBASE_API_KEY ;
+const authDomain = process.env.FIREBASE_AUTH_DOMAIN;
+const databaseURL = process.env.FIREBASE_DB_URL;
+const projectId = process.env.FIREBASE_PROJECT_ID;
+const storageBucket = process.env.FIREBASE_STORAGE_BUCKET;
+const messagingSenderId = process.env.FIREBASE_MESSAGING_SENDER_ID ;
+
 firebase.initializeApp({
-    apiKey: __FIREBASE_API_KEY__,
-    authDomain: __FIREBASE_AUTH_DOMAIN__,
-    databaseURL: __FIREBASE_DB_URL__,
-    projectId: __FIREBASE_PROJECT_ID__,
-    storageBucket: __FIREBASE_STORAGE_BUCKET__,
-    messagingSenderId: __FIREBASE_MESSAGING_SENDER_ID__
+    apiKey,
+    authDomain,
+    databaseURL,
+    projectId,
+    storageBucket,
+    messagingSenderId
 });
+
+
 
 require('babel-polyfill');
 require('moment/locale/fr');
