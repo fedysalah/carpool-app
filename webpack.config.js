@@ -60,8 +60,8 @@ if (isProd) {
 
 module.exports = {
     output: {
-        path: resolve(__dirname, './dist/'),
-        publicPath: '/assets/',
+        path: resolve(__dirname, './public/javascripts/bundle/'),
+        publicPath: '/javascripts/bundle/',
         filename: 'carpool.js',
         library: 'CarPool',
         libraryTarget: 'umd'

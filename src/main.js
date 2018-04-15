@@ -28,8 +28,6 @@ firebase.initializeApp({
 });
 
 
-
-require('babel-polyfill');
 require('moment/locale/fr');
 
 navigator.vibrate = navigator.vibrate ||
