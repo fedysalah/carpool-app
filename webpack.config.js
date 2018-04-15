@@ -1,8 +1,11 @@
 const webpack = require('webpack');
 const { resolve } = require('path');
-const secret = require('./secret');
 
 const isProd = process.env.NODE_ENV === 'production';
+let secret;
+if (!isProd) {
+    secret = require('./secret');
+}
 
 const devPlugins = [
     new webpack.optimize.ModuleConcatenationPlugin(),
