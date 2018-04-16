@@ -18,7 +18,7 @@ const projectId = process.env.FIREBASE_PROJECT_ID;
 const storageBucket = process.env.FIREBASE_STORAGE_BUCKET;
 const messagingSenderId = process.env.FIREBASE_MESSAGING_SENDER_ID ;
 
-let config = {
+const config = {
     apiKey,
     authDomain,
     databaseURL,
@@ -26,7 +26,6 @@ let config = {
     storageBucket,
     messagingSenderId
 };
-console.log('config', config);
 
 firebase.initializeApp(config);
 

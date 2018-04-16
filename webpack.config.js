@@ -8,32 +8,40 @@ let plugins;
 if (isProd) {
     plugins = [
         new webpack.optimize.ModuleConcatenationPlugin(),
-        // new webpack.optimize.OccurrenceOrderPlugin(),
-        // new webpack.LoaderOptionsPlugin({
-        //     minimize: true,
-        //     debug: false
-        // }),
-        // new webpack.optimize.UglifyJsPlugin({
-        //     beautify: false,
-        //     compress: {
-        //         warnings: false,
-        //         screw_ie8: true,
-        //         conditionals: true,
-        //         unused: true,
-        //         comparisons: true,
-        //         sequences: true,
-        //         dead_code: true,
-        //         evaluate: true,
-        //         if_return: true,
-        //         join_vars: true,
-        //     },
-        //     output: {
-        //         comments: false,
-        //     }
-        // }),
+        new webpack.optimize.OccurrenceOrderPlugin(),
+        new webpack.LoaderOptionsPlugin({
+            minimize: true,
+            debug: false
+        }),
+        new webpack.optimize.UglifyJsPlugin({
+            beautify: false,
+            compress: {
+                warnings: false,
+                screw_ie8: true,
+                conditionals: true,
+                unused: true,
+                comparisons: true,
+                sequences: true,
+                dead_code: true,
+                evaluate: true,
+                if_return: true,
+                join_vars: true,
+            },
+            output: {
+                comments: false,
+            }
+        }),
         new webpack.DefinePlugin({
             '__DEV__': false,
-
+            'process.env': {
+                NODE_ENV: JSON.stringify('production'),
+                FIREBASE_API_KEY: JSON.stringify(process.env.FIREBASE_API_KEY),
+                FIREBASE_AUTH_DOMAIN: JSON.stringify(process.env.FIREBASE_AUTH_DOMAIN),
+                FIREBASE_DB_URL: JSON.stringify(process.env.FIREBASE_DB_URL),
+                FIREBASE_PROJECT_ID: JSON.stringify(process.env.FIREBASE_PROJECT_ID),
+                FIREBASE_STORAGE_BUCKET: JSON.stringify(process.env.FIREBASE_STORAGE_BUCKET),
+                FIREBASE_MESSAGING_SENDER_ID: JSON.stringify(process.env.FIREBASE_MESSAGING_SENDER_ID),
+            }
         }),
     ];
 } else {
