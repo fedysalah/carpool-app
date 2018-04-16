@@ -4,6 +4,7 @@ node_modules
 .imdone
 /dist
 /package
+/public/javascripts/bundle/*
 /secret.json
 /firebase.json
 .idea

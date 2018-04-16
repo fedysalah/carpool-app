@@ -18,16 +18,31 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/images/icons/favicon-16x16.png">
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/images/icons/ms-icon-144x144.png">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#1a82cc">
     <meta name="viewport" content="width=device-width, user-scalable=no" />
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <link rel="manifest" href="manifest.json" />
     <link href="/ratchet/css/ratchet.css" rel="stylesheet">
     <script src="/ratchet/js/ratchet.js"></script>
+      <script>
+          if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/serviceworker.js').then(function(registration) {
+                      // Registration was successful
+                      console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                  }, function(err) {
+                      // registration failed :(
+                      console.log('ServiceWorker registration failed: ', err);
+                  });
+              });
+          }
+      </script>
   </head>
   <body>
     <div id="app"></div>
+
+    <pre id="output"></pre>
     <script type="text/javascript" src="/javascripts/bundle/carpool.js"></script>
   </body>
 </html>
