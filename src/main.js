@@ -10,6 +10,7 @@ import LocationScreen from './screens/locationscreen';
 
 import * as firebase from 'firebase'
 import 'firebase/auth'
+require('moment/locale/fr');
 
 const apiKey = process.env.FIREBASE_API_KEY ;
 const authDomain = process.env.FIREBASE_AUTH_DOMAIN;
@@ -29,8 +30,9 @@ const config = {
 
 firebase.initializeApp(config);
 
-
-require('moment/locale/fr');
+navigator.serviceWorker && navigator.serviceWorker.register('./sw.js').then(function(registration) {
+    console.log('Excellent, registered with scope: ', registration.scope);
+});
 
 navigator.vibrate = navigator.vibrate ||
     navigator.webkitVibrate ||
