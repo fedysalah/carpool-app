@@ -58,9 +58,6 @@ export default class SettingsScreen extends Component {
           <div style={{ margin: 20, textAlign: 'center' }}>
             <button className="btn btn-negative btn-block btn-outlined" onClick={this.signOut}>Sign out</button>
           </div>
-          <div style={{ margin: 20, textAlign: 'center' }}>
-            <button className="btn btn-positive btn-block btn-outlined" onClick={() => window.location.reload()}>Reload</button>
-          </div>
         </div>
       </div>
     );
