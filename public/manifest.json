@@ -2,12 +2,12 @@
   "name": "The Most Awesome carpool app",
   "short_name": "carpool app",
   "display": "fullscreen",
-  "start_url": "/index.html?launcher=true",
+  "start_url": "/",
   "theme_color": "#1a82cc",
   "background_color": "#ffffff",
   "icons": [
     {
-      "src": "\/images\/android-icon-36x36.png",
+      "src": "\/images\/icons\/android-icon-36x36.png",
       "sizes": "36x36",
       "type": "image\/png",
       "density": "0.75"

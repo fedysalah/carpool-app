@@ -384,13 +384,13 @@ p {
 
 .btn-primary {
   color: #fff;
-  background-color: #428bca;
-  border: 1px solid #428bca;
+  background-color: #0068c1;
+  border: 1px solid #0068c1;
 }
 .btn-primary:active, .btn-primary.active {
   color: #fff;
-  background-color: #3071a9;
-  border: 1px solid #3071a9;
+  background-color: #0068c1;
+  border: 1px solid #0068c1;
 }
 
 .btn-positive {
@@ -419,7 +419,7 @@ p {
   background-color: transparent;
 }
 .btn-outlined.btn-primary {
-  color: #428bca;
+  color: #0068c1;
 }
 .btn-outlined.btn-positive {
   color: #5cb85c;
@@ -434,12 +434,12 @@ p {
 .btn-link {
   padding-top: 6px;
   padding-bottom: 6px;
-  color: #428bca;
+  color: #0068c1;
   background-color: transparent;
   border: 0;
 }
 .btn-link:active, .btn-link.active {
-  color: #3071a9;
+  color: #0068c1;
   background-color: transparent;
 }
 
@@ -669,10 +669,10 @@ input[type="button"] {
 
 .badge-primary {
   color: #fff;
-  background-color: #428bca;
+  background-color: #0068c1;
 }
 .badge-primary.badge-inverted {
-  color: #428bca;
+  color: #0068c1;
 }
 
 .badge-positive {

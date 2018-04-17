@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 const {resolve} = require('path');
+const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -43,6 +44,57 @@ if (isProd) {
                 FIREBASE_STORAGE_BUCKET: JSON.stringify(secret.storageBucket),
                 FIREBASE_MESSAGING_SENDER_ID: JSON.stringify(secret.messagingSenderId)
             }
+        }),
+        new SWPrecacheWebpackPlugin({
+            // By default, a cache-busting query parameter is appended to requests
+            // used to populate the caches, to ensure the responses are fresh.
+            // If a URL is already hashed by Webpack, then there is no concern
+            // about it being stale, and the cache-busting can be skipped.
+            cacheId: 'the-magic-cache',
+            dontCacheBustUrlsMatching: /\.\w{8}\./,
+            //filename: 'park-service-worker.js',
+            filepath: resolve(__dirname, './public/serviceworker.js'),
+            logger(message) {
+                if (message.indexOf('Total precache size is') === 0) {
+                    // This message occurs for every build and is a bit too noisy.
+                    return;
+                }
+                if (message.indexOf('Skipping static resource') === 0) {
+                    // This message obscures real errors so we ignore it.
+                    // https://github.com/facebookincubator/create-react-app/issues/2612
+                    return;
+                }
+                console.log('message', message);
+            },
+            minify: false,
+            // For unknown URLs, fallback to the index page
+            navigateFallback: '/',
+            mergeStaticsConfig: true,
+            stripPrefixMulti: {
+                [resolve(__dirname, './public/')]: '',
+            },
+            staticFileGlobs: [
+                resolve(__dirname, './public/index.html'),
+                resolve(__dirname, './public/javascripts/bundle/*.js'),
+                resolve(__dirname, './public/ratchet/css/*.css'),
+                resolve(__dirname, './public/ratchet/fonts/*.css'),
+                resolve(__dirname, './public/ratchet/js/*.js'),
+                resolve(__dirname, './public/images/icons/**.*'),
+                resolve(__dirname, './public/images/icons-trans/**.*')
+            ],
+            // Ignores URLs starting from /__ (useful for Firebase):
+            // https://github.com/facebookincubator/create-react-app/issues/2237#issuecomment-302693219
+            navigateFallbackWhitelist: [/^(?!\/__).*/],
+            // Don't precache sourcemaps (they're large) and build asset manifest:
+            staticFileGlobsIgnorePatterns: [/\.map$/, /asset-manifest\.json$/],
+
+            runtimeCaching: [{
+                urlPattern: /\/search/,
+                handler: 'networkFirst'
+            }, {
+                urlPattern: /\/suggest/,
+                handler: 'networkFirst'
+            }]
         }),
     ];
 } else {

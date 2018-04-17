@@ -158,7 +158,7 @@ if (false) {
     } else {
         class Login extends Component {
             login = () => {
-                console.log('attemting to auth')
+                console.log('attemting to auth');
                 const provider = new firebase.auth.GoogleAuthProvider();
                 firebase.auth().signInWithRedirect(provider);
             };
@@ -171,7 +171,7 @@ if (false) {
                         </header>
                         <div className="content" style={{paddingLeft: 10, paddingRight: 10, paddingTop: 60}}>
                             <div style={{margin: 20}}>
-                                <button type="button" className="btn btn-primary btn-block btn-outlined"
+                                <button type="button" className="btn btn-primary btn-block "
                                         onClick={this.login}>
                                     Login with Google
                                 </button>
