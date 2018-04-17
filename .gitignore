@@ -5,6 +5,7 @@ node_modules
 /dist
 /package
 /public/javascripts/bundle/*
+/public/serviceworker.js
 /secret.json
 /firebase.json
 .idea
