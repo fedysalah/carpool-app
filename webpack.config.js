@@ -7,7 +7,6 @@ const isProd = process.env.NODE_ENV === 'production';
 let plugins;
 
 if (isProd) {
-    const secret = require('./secret');
     plugins = [
         new webpack.optimize.ModuleConcatenationPlugin(),
         new webpack.optimize.OccurrenceOrderPlugin(),
@@ -37,12 +36,12 @@ if (isProd) {
             '__DEV__': false,
             'process.env': {
                 NODE_ENV: JSON.stringify('production'),
-                FIREBASE_API_KEY: JSON.stringify(secret.apiKey),
-                FIREBASE_AUTH_DOMAIN: JSON.stringify(secret.authDomain),
-                FIREBASE_DB_URL: JSON.stringify(secret.databaseURL),
-                FIREBASE_PROJECT_ID: JSON.stringify(secret.projectId),
-                FIREBASE_STORAGE_BUCKET: JSON.stringify(secret.storageBucket),
-                FIREBASE_MESSAGING_SENDER_ID: JSON.stringify(secret.messagingSenderId)
+                FIREBASE_API_KEY: JSON.stringify(process.env.FIREBASE_API_KEY),
+                FIREBASE_AUTH_DOMAIN: JSON.stringify(process.env.FIREBASE_AUTH_DOMAIN),
+                FIREBASE_DB_URL: JSON.stringify(process.env.FIREBASE_DB_URL),
+                FIREBASE_PROJECT_ID: JSON.stringify(process.env.FIREBASE_PROJECT_ID),
+                FIREBASE_STORAGE_BUCKET: JSON.stringify(process.env.FIREBASE_STORAGE_BUCKET),
+                FIREBASE_MESSAGING_SENDER_ID: JSON.stringify(process.env.FIREBASE_MESSAGING_SENDER_ID),
             }
         }),
         new SWPrecacheWebpackPlugin({
