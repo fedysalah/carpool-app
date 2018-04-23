@@ -1,257 +1,308 @@
 import moment from 'moment';
-import * as firebase from 'firebase'
 import ActionTypes from '../actions/actiontypes';
 
-const defaultModel = {
-  sessions: {
-    'default': {
-      users: {
-        1: { id: '1', email: 'mathieu.ancelin@serli.com', name: 'Mathieu', score: 0.0 },
-        2: { id: '2', email: 'mickael.boudaud@serli.com', name: 'Mickael', score: 0.0 },
-        3: { id: '3', email: 'fedy.salah@serli.com', name: 'Fedy', score: 0.0 },
-        4: { id: '4', email: 'lenn.angel@serli.com', name: 'Lenn', score: 0.0 },
-      },
-      archive: {
-        '20151022': {
-          '1': { role: 'passenger', was: 0.0 },
-          '2': { role: 'driver', was: 0.0 },
-          '3': { role: 'passenger', was: 0.0 },
-          '4': { role: 'passenger', was: 0.0 },
-        },
-        '20151021': {
-          '1': { role: 'passenger', was: 0.0 },
-          '2': { role: 'passenger', was: 0.0 },
-          '3': { role: 'driver', was: 0.0 },
-          '4': { role: 'passenger', was: 0.0 },
-        }
-      }
+const dbPromise = new Promise((resolve, reject) => {
+    if (!('indexedDB' in window)) {
+        return null;
     }
-  }
-};
-
-function normalize(what) {
-  return parseFloat(what.toFixed(3));
-}
-
-function notifyError(error) {
-  // TODO : error notification
-  console.error(error);
-}
-
-export default function Store(session) {
-  let listeners = [];
-
-  let currentUsers = {};
-  let currentArchive = {};
-  let currentDay = moment();
-
-  const SessionRef = __DEV__
-    ? firebase.database().ref(`web/carpool/devsessions/${session}`)
-    : firebase.database().ref(`web/carpool/sessions/${session}`);
-  const UsersRef = SessionRef.child('users');
-  const ArchiveRef = SessionRef.child('archive');
-
-  UsersRef.on('value', snapshot => {
-    let value = snapshot.val();
-    if (value === null) {
-      UsersRef.set({...defaultModel.sessions.default.users});
-    } else {
-      currentUsers = value;
-      notifyListeners();
-    }
-  }, notifyError);
-
-  ArchiveRef.on('value', snapshot => {
-    let value = snapshot.val();
-    if (value !== null) {
-      currentArchive = value;
-      notifyListeners();
-    }
-  }, notifyError);
-
-
-  function subscribe(listener) {
-    listeners.push(listener);
-    return () => {
-      let index = listeners.indexOf(listener);
-      listeners.splice(index, 1);
+    const open = indexedDB.open("carpoolapp", 1);
+    // Create the schema
+    open.onupgradeneeded = function () {
+        const db = open.result;
+        db.createObjectStore("users", {keyPath: "key"});
+        db.createObjectStore("archive", {keyPath: "key"});
+        db.createObjectStore("locationTime", {keyPath: "key"});
+        resolve(db);
     };
-  }
-
-  function notifyListeners() {
-    listeners.forEach(cb => cb());
-  }
-
-  function noDrivers(users) {
-    for (let key in users) {
-      const user = users[key];
-      if (user === 'driver') {
-        return false;
-      }
+    open.onsuccess = function () {
+        // Start a new transaction
+        const db = open.result;
+        resolve(db);
+    };
+    open.onerror = function (e) {
+        reject(e);
     }
-    return true;
-  }
+});
 
-  function noPoolers(users) {
-    for (let key in users) {
-      const user = users[key];
-      if (user === 'pooler') {
-        return false;
-      }
+function saveUsersLocally(users) {
+    if (!('indexedDB' in window)) {
+        return null;
     }
-    return true;
-  }
-
-  function decrement() {
-    let value = Object.keys(currentUsers).length - 1;
-    if (value <= 0) {
-      value = 1;
-    }
-    return (1 / value);
-  }
-
-  function isLastSnapshot(date) {
-    const today = moment(moment().format('YYYYMMDD'), 'YYYYMMDD');
-    if (date.isAfter(today)) {
-      return true;
-    }
-    let index = date;
-    while (index.format('YYYYMMDD') !== today.format('YYYYMMDD')) {
-      if (typeof currentArchive[index] !== 'unefined') {
-        return false;
-      }
-      index = index.add(1, 'days');
-    }
-    return true;
-  }
-
-  function dispatch(action) {
-    if (action.type === ActionTypes.PreviousDay) {
-      previousDay();
-    } else if (action.type === ActionTypes.NextDay) {
-      nextDay();
-    } else if (action.type === ActionTypes.UpdateDay) {
-      const formattedDate = currentDay.format('YYYYMMDD');
-      const DayArchivedRef = ArchiveRef.child(formattedDate);
-      const day = {};
-      const newUsers = {...currentUsers};
-      const nbrUsers = Object.keys(newUsers).length;
-      const nbrPoolers = nbrUsers - 1;
-      if (noDrivers(action.payload.userStates)) {
-        console.log('no driver');
-        return;
-      }
-      if (noPoolers(action.payload.userStates)) {
-        console.log('no poolers');
-        return;
-      }
-      for (let key in newUsers) {
-        const user = newUsers[key];
-        const role = action.payload.userStates[user.id];
-        const archived = currentArchive[formattedDate] || { [user.id]: {}};
-        const userScore = isAlreadyValidated() ?
-          (archived[user.id].was || 0.0) :
-          (user.score || 0.0);
-        day[user.id] = { was: userScore, role };
-        if (role === 'driver') {
-          user.score = normalize(userScore + 1);
-        } else if (role === 'pooler') {
-          user.score = normalize(userScore - decrement());
+    return dbPromise.then(db => {
+        const tx = db.transaction('users', 'readwrite');
+        const store = tx.objectStore('users');
+        let request = store.put({"key": 'users', users});
+        request.onerror = function () {
+            tx.abort();
+            throw Error('Events were not added to the store');
         }
-      }
-      DayArchivedRef.set(day);
-      UsersRef.set(newUsers);
-      if (!isLastSnapshot(currentDay)) {
-        computeFromBeginning();
-      }
-    } else {
-      console.log('Unknown action', action);
-    }
-  }
-
-  function computeFromBeginning(cb = () => {}) {
-    const users = {...currentUsers};
-    const log = {...currentArchive};
-    for (let key in users) {
-      users[key].score = 0.0;
-    }
-    for (let key in log) {
-      const value = log[key];
-      for (let userId in value) {
-        if (userId !== 'was') {
-          const userAction = value[userId];
-          value.was = normalize(users[userId].score);
-          if (userAction.role === 'driver') {
-            users[userId].score = normalize(users[userId].score + 1);
-          } else if (userAction.role === 'pooler') {
-            users[userId].score = normalize(users[userId].score - decrement());
-          }
-        }
-      }
-    }
-    ArchiveRef.set(log, () => {
-      UsersRef.set(users, () => {
-        cb();
-      });
     });
-  }
+}
 
-  function isAlreadyValidated() {
-    return typeof currentArchive[currentDay.format('YYYYMMDD')] !== 'undefined';
-  }
+function saveArchiveLocally(archive) {
+    if (!('indexedDB' in window)) {
+        return null;
+    }
+    return dbPromise.then(db => {
+        const tx = db.transaction('archive', 'readwrite');
+        const store = tx.objectStore('archive');
+        let request = store.put({"key": 'archive', archive});
+        request.onerror = function () {
+            tx.abort();
+            throw Error('Events were not added to the store');
+        };
+    });
+}
 
-  function previousDay() {
-    const newDay = moment(currentDay).subtract(1, 'days');
-    if (newDay.isBefore(moment('20151026', 'YYYYMMDD'))) {
-      return;
+function saveLocationTimeLocally(locationTime) {
+    if (!('indexedDB' in window)) {
+        return null;
     }
-    if (newDay.weekday() == 5) {
-      currentDay = newDay.subtract(1, 'days');
-    } else if (newDay.weekday() == 6) {
-      currentDay = newDay.subtract(2, 'days');
-    } else {
-      currentDay = newDay;
-    }
-    notifyListeners();
-  }
+    return dbPromise.then(db => {
+        const tx = db.transaction('locationTime', 'readwrite');
+        const store = tx.objectStore('locationTime');
 
-  function nextDay() {
-    const newDay = moment(currentDay).add(1, 'days');
-    if (newDay.isAfter(moment().endOf('day'))) {
-      return;
-    }
-    if (newDay.weekday() == 5) {
-      currentDay = newDay.add(2, 'days');
-    } else if (newDay.weekday() == 6) {
-      currentDay = newDay.add(1, 'days');
-    } else {
-      currentDay = newDay;
-    }
-    notifyListeners();
-  }
+        let request = store.put({"key": 'locationTime', locationTime});
+        request.onerror = function () {
+            tx.abort();
+            throw Error('Events were not added to the store');
+        };
+    });
+}
 
-  return {
-    subscribe,
-    dispatch,
-    computeFromBeginning,
-    isAlreadyValidated,
-    getCurrentDate() {
-      return currentDay;
-    },
-    getUsers() {
-      return {...currentUsers};
-    },
-    getArchives() {
-      return {...currentArchive};
-    },
-    getArchivedDay(m) {
-      return currentArchive[m.format('YYYYMMDD')];
-    },
-    getCurrentDayFromArchive() {
-      return currentArchive[currentDay.format('YYYYMMDD')];
-    },
-    isInPast() {
-      return currentDay.isBefore(moment().startOf('day'));
+function getUsersLocalData() {
+    if (!('indexedDB' in window)) {return null;}
+    return dbPromise.then(db => {
+        const tx = db.transaction('users', 'readonly');
+        const store = tx.objectStore('users');
+        return store.getAll();
+    });
+}
+
+function getArchiveLocalData() {
+    if (!('indexedDB' in window)) {return null;}
+    return dbPromise.then(db => {
+        const tx = db.transaction('archive', 'readonly');
+        const store = tx.objectStore('archive');
+        return store.getAll();
+    });
+}
+
+function getLocationTimeLocalData() {
+    if (!('indexedDB' in window)) {return null;}
+    return dbPromise.then(db => {
+        const tx = db.transaction('locationTime', 'readonly');
+        const store = tx.objectStore('locationTime');
+        return store.getAll();
+    });
+}
+
+export default function Store() {
+    let listeners = [];
+    let currentUsers = {};
+    let currentArchive = {};
+    let currentDay = moment();
+    let currentTime = {};
+    let currentLocation = {};
+    loadData();
+
+    function loadData() {
+        Promise.all([
+            fetch('/users', {
+                method: 'GET',
+                headers: {
+                    'Content-type': 'application/json'
+                }}).then(response => response.json()),
+            fetch('/archive', {
+                method: 'GET',
+                headers: {
+                    'Content-type': 'application/json'
+                }
+            }).then(response => response.json()),
+            fetch('/locationTime', {
+                method: 'GET',
+                headers: {
+                    'Content-type': 'application/json'
+                }
+            }).then(response => response.json())
+        ]).then(responses => {
+            currentUsers = responses[0];
+            saveUsersLocally(currentUsers);
+            currentArchive = responses[1];
+            saveArchiveLocally(currentArchive);
+            currentTime = responses[2].time;
+            currentLocation = responses[2].location;
+            saveLocationTimeLocally(responses[2]);
+            notifyListeners();
+        }).catch(err => {
+            console.log('Network requests have failed, this is expected if offline');
+            Promise.all([getUsersLocalData, getArchiveLocalData, getLocationTimeLocalData])
+                .then(responses => {
+                    currentUsers = responses[0];
+                    saveUsersLocally(currentUsers.users);
+                    currentArchive = responses[1];
+                    saveArchiveLocally(currentArchive.archive);
+                    currentTime = responses[2].locationTime.time;
+                    currentLocation = responses[2].locationTime.location;
+                    saveLocationTimeLocally(responses[2].locationTime);
+                    notifyListeners();
+                });
+        });
     }
-  };
+
+    function subscribe(listener) {
+        listeners.push(listener);
+        return () => {
+            let index = listeners.indexOf(listener);
+            listeners.splice(index, 1);
+        };
+    }
+
+    function notifyListeners() {
+        listeners.forEach(cb => cb());
+    }
+
+    function noDrivers(users) {
+        for (let key in users) {
+            const user = users[key];
+            if (user === 'driver') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function noPoolers(users) {
+        for (let key in users) {
+            const user = users[key];
+            if (user === 'pooler') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function dispatch(action) {
+        if (action.type === ActionTypes.PreviousDay) {
+            previousDay();
+        } else if (action.type === ActionTypes.NextDay) {
+            nextDay();
+        } else if (action.type === ActionTypes.UpdateDay) {
+            const formattedDate = currentDay.format('YYYYMMDD');
+            if (noDrivers(action.payload.userStates)) {
+                console.log('no driver');
+                return;
+            }
+            if (noPoolers(action.payload.userStates)) {
+                console.log('no poolers');
+                return;
+            }
+            fetch('/saveUser', {
+                    method: 'POST', headers: {
+                        'Content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userStates: action.payload.userStates,
+                        currentDay: formattedDate
+                    }),
+                }
+            ).then(response => response.json())
+             .then((response) => {
+                currentArchive = response;
+                notifyListeners();
+            })
+        } else if (action.type === ActionTypes.ChangeLocation) {
+            fetch('/changeLocation', {
+                    method: 'POST', headers: {
+                        'Content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        location: action.payload,
+                    }),
+                }
+            ).then(response => response.json())
+                .then(responseJs => {
+                    currentTime = responseJs.time;
+                    currentLocation = responseJs.location;
+                    notifyListeners();
+                });
+        } else if (action.type === ActionTypes.ChangeTime) {
+            fetch('/changeTime', {
+                    method: 'POST', headers: {
+                        'Content-type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        time: action.payload,
+                    }),
+                }
+            ).then(response => response.json())
+                .then(responseJs => {
+                    currentTime = responseJs.time;
+                    currentLocation = responseJs.location;
+                    notifyListeners();
+                });
+        } else {
+            console.log('Unknown action', action);
+        }
+    }
+
+    function previousDay() {
+        const newDay = moment(currentDay).subtract(1, 'days');
+        if (newDay.isBefore(moment('20180401', 'YYYYMMDD'))) {
+            return;
+        }
+        if (newDay.weekday() == 5) {
+            currentDay = newDay.subtract(1, 'days');
+        } else if (newDay.weekday() == 6) {
+            currentDay = newDay.subtract(2, 'days');
+        } else {
+            currentDay = newDay;
+        }
+        notifyListeners();
+    }
+
+    function nextDay() {
+        const newDay = moment(currentDay).add(1, 'days');
+        if (newDay.isAfter(moment().endOf('day'))) {
+            return;
+        }
+        if (newDay.weekday() == 5) {
+            currentDay = newDay.add(2, 'days');
+        } else if (newDay.weekday() == 6) {
+            currentDay = newDay.add(1, 'days');
+        } else {
+            currentDay = newDay;
+        }
+        notifyListeners();
+    }
+
+    return {
+        loadData,
+        subscribe,
+        dispatch,
+        isAlreadyValidated() {
+            return typeof currentArchive[currentDay.format('YYYYMMDD')] !== 'undefined'
+        },
+        getCurrentTime() {
+            return currentTime;
+        },
+        getCurrentLocation() {
+            return currentLocation;
+        },
+        getCurrentDate() {
+            return currentDay;
+        },
+        getUsers() {
+            return {...currentUsers};
+        },
+        getArchives() {
+            return {...currentArchive};
+        },
+        getCurrentDayFromArchive() {
+            return currentArchive[currentDay.format('YYYYMMDD')];
+        },
+        isInPast() {
+            return currentDay.isBefore(moment().startOf('day'));
+        }
+    };
 }

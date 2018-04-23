@@ -14,14 +14,12 @@ export default class LocationScreen extends Component {
     }
 
     componentDidMount() {
-        this.props.store.setNow();
         this.cancelSubscription = this.props.store.subscribe(this.update);
         this.update();
     }
 
     componentWillUnmount() {
         this.cancelSubscription();
-        this.props.store.setNow();
     }
 
     select = (location) => {

@@ -35,7 +35,7 @@ export default class DaysScreen extends Component {
         } else {
             for (let key in users) {
                 let user = users[key];
-                userStates[user.id] = 'pooler';
+                userStates[user.id -1 ] = 'pooler';
             }
         }
         let changed = this.state.changed;
@@ -87,7 +87,7 @@ export default class DaysScreen extends Component {
         let states = {...this.state.userStates};
         for (let key in states) {
             let value = states[key];
-            if (state === 'driver' && value === 'driver' && key !== carpooler.id) {
+            if (state === 'driver' && value === 'driver' && key !== (carpooler.id-1)) {
                 states[key] = 'pooler';
             }
             if (states[key] === 'driver') {
@@ -97,7 +97,7 @@ export default class DaysScreen extends Component {
         if (state === 'driver') {
             driver = carpooler;
         }
-        states[carpooler.id] = state;
+        states[carpooler.id -1] = state;
         this.setState({userStates: states, changed: true, driver: driver ? driver.name : 'Nobody'});
     };
 
@@ -127,7 +127,7 @@ export default class DaysScreen extends Component {
                             minScore={this.state.minScore}
                             inPast={isInPast}
                             onChange={this.globalToggle}
-                            driverState={driverStates[user.id]}
+                            driverState={driverStates[user.id -1]}
                             carpooler={user}/>)}
                         <li onClick={this.toggle} style={{borderBottom: 'none'}} className="table-view-cell">
                             {

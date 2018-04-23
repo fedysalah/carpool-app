@@ -30,18 +30,9 @@ const Styles = {
 };
 
 export default class DriverButton extends Component {
-
     state = {
         message: 0
     };
-
-    static defaultProps() {
-        return {
-            driverState: 'pooler',
-            onChange: () => Utils.Unit
-        };
-    }
-
 
     toggle = () => {
         const newMessage = (this.state.message + 1) % states.length;
@@ -70,4 +61,9 @@ export default class DriverButton extends Component {
             </li>
         );
     }
+};
+
+DriverButton.defaultProps = {
+    driverState: 'pooler',
+    onChange: () => Utils.Unit
 };

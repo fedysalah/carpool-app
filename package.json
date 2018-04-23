@@ -3,8 +3,6 @@
   "version": "1.0.0",
   "description": "CarPooling application",
   "main": "src/main.js",
-
-
   "scripts": {
     "init-env": "ln -s ./public/images ./images; touch secret.json",
     "bundle": "NODE_ENV=production  webpack --colors",
@@ -25,12 +23,13 @@
     "body-parser": "1.17.1",
     "express": "4.14.0",
     "express-validator": "3.2.0",
-    "request": "2.81.0",
     "firebase": "^4.12.1",
     "hammerjs": "^2.0.4",
     "moment": "^2.10.6",
+    "node-fetch": "^2.1.2",
     "react": "^16.3.1",
-    "react-dom": "^16.3.1"
+    "react-dom": "^16.3.1",
+    "request": "2.81.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
