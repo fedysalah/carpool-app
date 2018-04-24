@@ -1,34 +1,35 @@
 <html lang="fr">
-  <head>
+<head>
     <meta charset="utf-8">
     <meta name="Description" content="this is an awesome car pool app"/>
     <title>CarPool</title>
     <meta name="viewport" content="width=device-width"/>
     <link href="/ratchet/css/ratchet.min.css" rel="stylesheet">
     <script src="/ratchet/js/ratchet.min.js" async></script>
-      <script>
-          if ('serviceWorker' in navigator) {
-              window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/serviceworker.js').then(function (registration) {
-                      console.log('Registration successful, scope is', registration.scope);
-                  }, function (e) {
-                      return console.error("can't register service worker", e);
-                  }).catch(function (error) {
-                      console.error('Error during service worker registration:', error);
-                  });
-              });
-          }
-      </script>
-  </head>
-  <body>
-  <noscript>
-      <div>
-          <p>
-              L'activation de JavaScript est nécessaire pour que l'application fonctionne
-          </p>
-      </div>
-  </noscript>
-    <div id="app"></div>
-    <script type="text/javascript" src="/javascripts/bundle/carpool.js"></script>
-  </body>
+    <link rel="manifest" href="manifest.json"/>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/serviceworker.js').then(function (registration) {
+                    console.log('Registration successful, scope is', registration.scope);
+                }, function (e) {
+                    return console.error("can't register service worker", e);
+                }).catch(function (error) {
+                    console.error('Error during service worker registration:', error);
+                });
+            });
+        }
+    </script>
+</head>
+<body>
+<noscript>
+    <div>
+        <p>
+            L'activation de JavaScript est nécessaire pour que l'application fonctionne
+        </p>
+    </div>
+</noscript>
+<div id="app"></div>
+<script type="text/javascript" src="/javascripts/bundle/carpool.js"></script>
+</body>
 </html>
