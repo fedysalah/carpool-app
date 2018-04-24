@@ -62,7 +62,7 @@
                       messaging.requestPermission()
                           .then(() => messaging.getToken())
                           .then(token => {
-                                  console.log('token ', token);
+                                  console.log('token :', token);
                                   return fetch('/registerToken', {
                                       method: 'POST', headers: {
                                           'Content-type': 'application/json'
