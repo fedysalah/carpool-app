@@ -13,6 +13,19 @@
         navigator.serviceWorker.register('/serviceworker.js')
         .then(function(registration) {
           console.log('registation successful, scope is ', registration.scope)
+          registration.onupdatefound = function() {
+            var installingWorker = registration.installing;
+            installingWorker.onstatechange= function(){
+              if(installingWorker.state ==='installed'){
+                if(navigator.serviceWorker.controller){
+                  document.getElementById('new-version-alert').style="";
+                  console.log('new content available');
+                } else{
+                  //
+                }
+              }
+            }
+          }
         }).catch(function(error){
           console.log('an error occurred while service worker registration', error)
         })

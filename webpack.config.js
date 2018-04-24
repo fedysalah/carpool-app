@@ -38,6 +38,39 @@ if (isProd) {
                 NODE_ENV: JSON.stringify('production')
             }
         }),
+        new SWPrecacheWebpackPlugin({
+            // By default, a cache-busting query parameter is appended to requests
+            // used to populate the caches, to ensure the responses are fresh.
+            // If a URL is already hashed by Webpack, then there is no concern
+            // about it being stale, and the cache-busting can be skipped.
+            cacheId: 'the-magic-cache',
+            filepath: resolve(__dirname, './public/serviceworker.js'),
+            minify: false,
+            // For unknown URLs, fallback to the index page
+            navigateFallback: '/',
+            mergeStaticsConfig: true,
+            stripPrefixMulti: {
+                [resolve(__dirname, './public/')]: '',
+            },
+            staticFileGlobs: [
+                resolve(__dirname, './public/index.html'),
+                resolve(__dirname, './public/javascripts/bundle/*.js'),
+                resolve(__dirname, './public/ratchet/css/*.css'),
+                resolve(__dirname, './public/ratchet/fonts/*.eot'),
+                resolve(__dirname, './public/ratchet/fonts/*.svg'),
+                resolve(__dirname, './public/ratchet/fonts/*.ttf'),
+                resolve(__dirname, './public/ratchet/fonts/*.woff'),
+                resolve(__dirname, './public/ratchet/js/*.js'),
+                resolve(__dirname, './public/images/icons/**.*'),
+                resolve(__dirname, './public/images/icons-trans/**.*'),
+                resolve(__dirname, './public/images/*.png')
+            ],
+            // Ignores URLs starting from /__ (useful for Firebase):
+            // https://github.com/facebookincubator/create-react-app/issues/2237#issuecomment-302693219
+            navigateFallbackWhitelist: [/^(?!\/__).*/],
+            // Don't precache sourcemaps (they're large) and build asset manifest:
+            staticFileGlobsIgnorePatterns: [/\.map$/, /asset-manifest\.json$/],
+        }),
     ];
 } else {
     const secret = require('./secret');
