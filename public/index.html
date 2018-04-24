@@ -6,6 +6,19 @@
     <meta name="viewport" content="width=device-width"/>
     <link href="/ratchet/css/ratchet.min.css" rel="stylesheet">
     <script src="/ratchet/js/ratchet.min.js" async></script>
+    <link rel="manifest" href="manifest.json"/> 
+    <script>
+    if('serviceWorker' in navigator) {
+      window.addEventListener('load' , function() {
+        navigator.serviceWorker.register('/serviceworker.js')
+        .then(function(registration) {
+          console.log('registation successful, scope is ', registration.scope)
+        }).catch(function(error){
+          console.log('an error occurred while service worker registration', error)
+        })
+      })
+    }
+    </script>
   </head>
   <body>
   <noscript>
