@@ -85,6 +85,9 @@ if (isProd) {
                 resolve(__dirname, './public/images/icons-trans/**.*'),
                 resolve(__dirname, './public/images/*.png')
             ],
+            importScripts: [
+                './firebase-messaging.js',
+            ],
             // Ignores URLs starting from /__ (useful for Firebase):
             // https://github.com/facebookincubator/create-react-app/issues/2237#issuecomment-302693219
             navigateFallbackWhitelist: [/^(?!\/__).*/],

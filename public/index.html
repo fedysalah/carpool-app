@@ -29,7 +29,7 @@
           if ('serviceWorker' in navigator) {
               window.addEventListener('load', function() {
                   navigator.serviceWorker.register('/serviceworker.js').then(function (registration) {
-                      console.log('Registration successful, scope is neww:', registration.scope);
+                      console.log('Registration successful, scope is', registration.scope);
                       registration.onupdatefound = function () {
                           var installingWorker = registration.installing;
                           installingWorker.onstatechange = function () {
@@ -49,6 +49,36 @@
                               }
                           };
                       };
+                      firebase.initializeApp({
+                          "apiKey": "AIzaSyAtcsQKYqEoFQE35gsrLf7C7I8bczJaufI",
+                          "authDomain": "carpoolapptest.firebaseapp.com",
+                          "databaseURL": "https://carpoolapptest.firebaseio.com",
+                          "projectId": "carpoolapptest",
+                          "storageBucket": "carpoolapptest.appspot.com",
+                          "messagingSenderId": "143803579783"
+                      });
+                      const messaging = firebase.messaging();
+                      messaging.useServiceWorker(registration);
+                      messaging.requestPermission()
+                          .then(() => messaging.getToken())
+                          .then(token => {
+                                  console.log('token ', token);
+                                  return fetch('/registerToken', {
+                                      method: 'POST', headers: {
+                                          'Content-type': 'application/json'
+                                      },
+                                      body: JSON.stringify({token}),
+                                  });
+                              }
+                          )
+                          .then(response => response.json())
+                          .catch(function (err) {
+                              console.log('Unable to get permission to notify.', err);
+                          });
+
+                      messaging.onMessage(function (payload) {
+                          console.log('notif payload', payload)
+                      });
                   }, function (e) {
                       return console.error("can't register service worker", e);
                   }).catch(function (error) {
@@ -68,5 +98,6 @@
   </noscript>
     <div id="app"></div>
     <script type="text/javascript" src="/javascripts/bundle/carpool.js" async></script>
+    <script type="text/javascript" src="https://www.gstatic.com/firebasejs/4.13.0/firebase.js" async></script>
   </body>
 </html>

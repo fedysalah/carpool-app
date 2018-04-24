@@ -171,6 +171,7 @@ function notifyOthers(me, title, body, action) {
                             notification: {
                                 title,
                                 body,
+
                             },
                             to: token
                         })
@@ -179,6 +180,16 @@ function notifyOthers(me, title, body, action) {
             })
     ).catch(error => console.log(error));
 }
+
+app.post('/registerToken', function (req, res) {
+    const requestBody = req.body;
+    const token = requestBody.token;
+    if (currentTokens.indexOf(token) < 0) {
+        console.log('new token', token);
+        currentTokens.push(token);
+    }
+    res.json({});
+});
 
 app.get('/locationTime', function (req, res) {
     res.json({
@@ -207,20 +218,11 @@ app.post('/changeLocation', function (req, res) {
     });
 });
 
-app.post('/registerToken', function (req, res) {
-    const requestBody = req.body;
-    const token = requestBody.token;
-    if (currentTokens.indexOf(token) < 0) {
-        console.log('new token', token);
-        currentTokens.push(token);
-    }
-    res.json({});
-});
-
 app.post('/changeTime', function (req, res) {
     const requestBody = req.body;
     const time = requestBody.time;
     LocationRef.set({location: currentLocation, time, changed: 0});
+    notifyOthers('', 'Time changed', 'The Time has changed');
     res.json({
         time,
         location: currentLocation
