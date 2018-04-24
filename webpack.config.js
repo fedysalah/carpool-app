@@ -70,6 +70,16 @@ if (isProd) {
             navigateFallbackWhitelist: [/^(?!\/__).*/],
             // Don't precache sourcemaps (they're large) and build asset manifest:
             staticFileGlobsIgnorePatterns: [/\.map$/, /asset-manifest\.json$/],
+            runtimeCaching: [{
+                urlPattern: /\/users/,
+                handler: 'networkFirst'
+            }, {
+                urlPattern: /\/archive/,
+                handler: 'networkFirst'
+            }, {
+                urlPattern: /\/locationTime/,
+                handler: 'networkFirst'
+            }]
         }),
     ];
 } else {
