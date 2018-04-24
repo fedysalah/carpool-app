@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width"/>
     <link href="/ratchet/css/ratchet.min.css" rel="stylesheet">
     <script src="/ratchet/js/ratchet.min.js" async></script>
+    <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase-app.js" async></script>
+    <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase-messaging.js" async></script>
     <link rel="manifest" href="manifest.json"/>
     <script>
         if ('serviceWorker' in navigator) {
@@ -21,7 +23,7 @@
                                     // the fresh content will have been added to the cache.
                                     // It's the perfect time to display a "New content is
                                     // available; please refresh." message in your web app.
-                                    document.getElementById('new-version-alert').style="";
+                                    document.getElementById('new-version-alert').style = "";
                                     console.log('New content is available; please refresh again.');
                                 } else {
                                     // At this point, everything has been precached.
@@ -32,7 +34,6 @@
                             }
                         };
                     };
-                    importScripts('https://www.gstatic.com/firebasejs/4.13.0/firebase-app.js');
                     firebase.initializeApp({
                         "apiKey": "AIzaSyAtcsQKYqEoFQE35gsrLf7C7I8bczJaufI",
                         "authDomain": "carpoolapptest.firebaseapp.com",

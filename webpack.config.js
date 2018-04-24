@@ -94,6 +94,9 @@ if (isProd) {
             }, {
                 urlPattern: /\/locationTime/,
                 handler: 'networkFirst'
+            }, {
+                urlPattern: /https:\/\/www\.gstatic\.com\/firebasejs\//,
+                handler: 'networkFirst'
             }]
         }),
     ];
