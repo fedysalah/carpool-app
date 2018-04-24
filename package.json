@@ -4,18 +4,12 @@
   "description": "CarPooling application",
   "main": "src/main.js",
   "scripts": {
-    "init-env": "ln -s ./public/images ./images; touch secret.json",
-    "bundle": "NODE_ENV=production  webpack --colors",
-    "bundle-dev": "NODE_ENV=dev  webpack --colors",
+    "bundle": "NODE_ENV=production webpack --colors",
+    "bundle-dev": "NODE_ENV=dev webpack --colors",
     "build": "rm -f ./public/javascripts/bundle/* && yarn bundle",
     "build-dev": "rm -f ./public/javascripts/bundle/* && yarn bundle-dev",
     "start": "yarn build && node server.js",
-    "start-node-dev": "yarn build-dev && node server.js",
-    "start-dev": "NODE_ENV=dev webpack-dev-server -d --colors --hot --inline --progress",
-    "pack": "npm run build && rm -rf ./package; cp -r ./public ./package; cp ./public/javascripts/bundle/carpool.js ./package/",
-    "deploy": "firebase deploy",
-    "open": "firebase open",
-    "packdep": "npm run pack && npm run deploy"
+    "start-dev": "yarn build-dev && NODE_ENV=dev node server.js"
   },
   "author": "Mathieu ANCELIN <mathieu.ancelin@gmail.com> (http://reactivecouchbase.org/)",
   "license": "MIT",

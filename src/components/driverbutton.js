@@ -51,7 +51,7 @@ export default class DriverButton extends Component {
         return (
             <li onClick={this.toggle} className="table-view-cell"
                 style={{backgroundColor: this.props.driverState === 'driver' ? '#ECECEC' : 'white'}}>
-                <img src={images[this.props.driverState]} width={60} height={60}/>
+                <img src={images[this.props.driverState]} alt={this.props.driverState} width={60} height={60}/>
                 <span style={Styles.name}>{this.props.carpooler.name} ({this.props.driverState})</span>
                 {
                     this.props.inPast
