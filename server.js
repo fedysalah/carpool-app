@@ -180,6 +180,10 @@ function notifyOthers(me, title, body, action) {
     ).catch(error => console.log(error));
 }
 
+app.get("*", function (req, res, next) {
+    res.redirect("https://" + req.headers.host + "/" + req.path);
+});
+
 app.get('/locationTime', function (req, res) {
     res.json({
         location: currentLocation,
@@ -253,10 +257,6 @@ app.post('/saveUser', function (req, res) {
         computeFromBeginning();
     }
     res.json(currentArchive);
-});
-
-app.get("*", function (req, res, next) {
-    res.redirect("https://" + req.headers.host + "/" + req.path);
 });
 
 app.listen(port, () => {
