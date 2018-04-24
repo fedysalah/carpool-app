@@ -7,41 +7,42 @@ const isProd = process.env.NODE_ENV === 'production';
 let plugins;
 
 if (isProd) {
+    const secret = require('./secret');
     plugins = [
         new webpack.optimize.ModuleConcatenationPlugin(),
         new webpack.optimize.OccurrenceOrderPlugin(),
-        new webpack.LoaderOptionsPlugin({
-            minimize: true,
-            debug: false
-        }),
-        new webpack.optimize.UglifyJsPlugin({
-            beautify: false,
-            compress: {
-                warnings: false,
-                screw_ie8: true,
-                conditionals: true,
-                unused: true,
-                comparisons: true,
-                sequences: true,
-                dead_code: true,
-                evaluate: true,
-                if_return: true,
-                join_vars: true,
-            },
-            output: {
-                comments: false,
-            }
-        }),
+        // new webpack.LoaderOptionsPlugin({
+        //     minimize: true,
+        //     debug: false
+        // }),
+        // new webpack.optimize.UglifyJsPlugin({
+        //     beautify: false,
+        //     compress: {
+        //         warnings: false,
+        //         screw_ie8: true,
+        //         conditionals: true,
+        //         unused: true,
+        //         comparisons: true,
+        //         sequences: true,
+        //         dead_code: true,
+        //         evaluate: true,
+        //         if_return: true,
+        //         join_vars: true,
+        //     },
+        //     output: {
+        //         comments: false,
+        //     }
+        // }),
         new webpack.DefinePlugin({
             '__DEV__': false,
             'process.env': {
                 NODE_ENV: JSON.stringify('production'),
-                FIREBASE_API_KEY: JSON.stringify(process.env.FIREBASE_API_KEY),
-                FIREBASE_AUTH_DOMAIN: JSON.stringify(process.env.FIREBASE_AUTH_DOMAIN),
-                FIREBASE_DB_URL: JSON.stringify(process.env.FIREBASE_DB_URL),
-                FIREBASE_PROJECT_ID: JSON.stringify(process.env.FIREBASE_PROJECT_ID),
-                FIREBASE_STORAGE_BUCKET: JSON.stringify(process.env.FIREBASE_STORAGE_BUCKET),
-                FIREBASE_MESSAGING_SENDER_ID: JSON.stringify(process.env.FIREBASE_MESSAGING_SENDER_ID),
+                FIREBASE_API_KEY: JSON.stringify(secret.apiKey),
+                FIREBASE_AUTH_DOMAIN: JSON.stringify(secret.authDomain),
+                FIREBASE_DB_URL: JSON.stringify(secret.databaseURL),
+                FIREBASE_PROJECT_ID: JSON.stringify(secret.projectId),
+                FIREBASE_STORAGE_BUCKET: JSON.stringify(secret.storageBucket),
+                FIREBASE_MESSAGING_SENDER_ID: JSON.stringify(secret.messagingSenderId)
             }
         }),
         new SWPrecacheWebpackPlugin({
@@ -76,10 +77,14 @@ if (isProd) {
                 resolve(__dirname, './public/index.html'),
                 resolve(__dirname, './public/javascripts/bundle/*.js'),
                 resolve(__dirname, './public/ratchet/css/*.css'),
-                resolve(__dirname, './public/ratchet/fonts/*.css'),
+                resolve(__dirname, './public/ratchet/fonts/*.eot'),
+                resolve(__dirname, './public/ratchet/fonts/*.svg'),
+                resolve(__dirname, './public/ratchet/fonts/*.ttf'),
+                resolve(__dirname, './public/ratchet/fonts/*.woff'),
                 resolve(__dirname, './public/ratchet/js/*.js'),
                 resolve(__dirname, './public/images/icons/**.*'),
-                resolve(__dirname, './public/images/icons-trans/**.*')
+                resolve(__dirname, './public/images/icons-trans/**.*'),
+                resolve(__dirname, './public/images/*.png')
             ],
             // Ignores URLs starting from /__ (useful for Firebase):
             // https://github.com/facebookincubator/create-react-app/issues/2237#issuecomment-302693219

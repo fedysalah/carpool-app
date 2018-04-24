@@ -31,7 +31,7 @@ function saveUsersLocally(users) {
     return dbPromise.then(db => {
         const tx = db.transaction('users', 'readwrite');
         const store = tx.objectStore('users');
-        let request = store.put({"key": 'users', users});
+        const request = store.put({"key": 'users', users});
         request.onerror = function () {
             tx.abort();
             throw Error('Events were not added to the store');
@@ -46,7 +46,7 @@ function saveArchiveLocally(archive) {
     return dbPromise.then(db => {
         const tx = db.transaction('archive', 'readwrite');
         const store = tx.objectStore('archive');
-        let request = store.put({"key": 'archive', archive});
+        const request = store.put({"key": 'archive', archive});
         request.onerror = function () {
             tx.abort();
             throw Error('Events were not added to the store');
@@ -62,7 +62,7 @@ function saveLocationTimeLocally(locationTime) {
         const tx = db.transaction('locationTime', 'readwrite');
         const store = tx.objectStore('locationTime');
 
-        let request = store.put({"key": 'locationTime', locationTime});
+        const request = store.put({"key": 'locationTime', locationTime});
         request.onerror = function () {
             tx.abort();
             throw Error('Events were not added to the store');
@@ -71,29 +71,59 @@ function saveLocationTimeLocally(locationTime) {
 }
 
 function getUsersLocalData() {
-    if (!('indexedDB' in window)) {return null;}
+    if (!('indexedDB' in window)) {
+        return null;
+    }
     return dbPromise.then(db => {
         const tx = db.transaction('users', 'readonly');
         const store = tx.objectStore('users');
-        return store.getAll();
+        return new Promise((resolve, reject) => {
+            const request = store.getAll();
+            request.onsuccess = function (e) {
+                resolve(e.target.result[0].users);
+            };
+            open.onerror = function (e) {
+                reject(e);
+            }
+        });
     });
 }
 
 function getArchiveLocalData() {
-    if (!('indexedDB' in window)) {return null;}
+    if (!('indexedDB' in window)) {
+        return null;
+    }
     return dbPromise.then(db => {
         const tx = db.transaction('archive', 'readonly');
         const store = tx.objectStore('archive');
-        return store.getAll();
+        return new Promise((resolve, reject) => {
+            const request = store.getAll();
+            request.onsuccess = function (e) {
+                resolve(e.target.result[0].archive);
+            };
+            open.onerror = function (e) {
+                reject(e);
+            }
+        });
     });
 }
 
 function getLocationTimeLocalData() {
-    if (!('indexedDB' in window)) {return null;}
+    if (!('indexedDB' in window)) {
+        return null;
+    }
     return dbPromise.then(db => {
         const tx = db.transaction('locationTime', 'readonly');
         const store = tx.objectStore('locationTime');
-        return store.getAll();
+        return new Promise((resolve, reject) => {
+            const request = store.getAll();
+            request.onsuccess = function (e) {
+                resolve(e.target.result[0].locationTime);
+            };
+            open.onerror = function (e) {
+                reject(e);
+            }
+        });
     });
 }
 
@@ -107,47 +137,62 @@ export default function Store() {
     loadData();
 
     function loadData() {
-        Promise.all([
-            fetch('/users', {
-                method: 'GET',
-                headers: {
-                    'Content-type': 'application/json'
-                }}).then(response => response.json()),
-            fetch('/archive', {
-                method: 'GET',
-                headers: {
-                    'Content-type': 'application/json'
-                }
-            }).then(response => response.json()),
-            fetch('/locationTime', {
-                method: 'GET',
-                headers: {
-                    'Content-type': 'application/json'
-                }
-            }).then(response => response.json())
-        ]).then(responses => {
-            currentUsers = responses[0];
-            saveUsersLocally(currentUsers);
-            currentArchive = responses[1];
-            saveArchiveLocally(currentArchive);
-            currentTime = responses[2].time;
-            currentLocation = responses[2].location;
-            saveLocationTimeLocally(responses[2]);
-            notifyListeners();
-        }).catch(err => {
-            console.log('Network requests have failed, this is expected if offline');
-            Promise.all([getUsersLocalData, getArchiveLocalData, getLocationTimeLocalData])
+        if (navigator.onLine) {
+            Promise.all([
+                fetch('/users', {
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json'
+                    }
+                }).then(response => response.json()),
+                fetch('/archive', {
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json'
+                    }
+                }).then(response => response.json()),
+                fetch('/locationTime', {
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'application/json'
+                    }
+                }).then(response => response.json())
+            ]).then(responses => {
+                currentUsers = responses[0];
+                saveUsersLocally(currentUsers);
+                currentArchive = responses[1];
+                saveArchiveLocally(currentArchive);
+                currentTime = responses[2].time;
+                currentLocation = responses[2].location;
+                saveLocationTimeLocally(responses[2]);
+                notifyListeners();
+            }).catch(err => {
+                console.log('Network requests have failed, this is expected if offline');
+                Promise.all([getUsersLocalData(), getArchiveLocalData(), getLocationTimeLocalData()])
+                    .then(responses => {
+                        currentUsers = responses[0];
+                        saveUsersLocally(currentUsers);
+                        currentArchive = responses[1];
+                        saveArchiveLocally(currentArchive);
+                        currentTime = responses[2].time;
+                        currentLocation = responses[2].location;
+                        saveLocationTimeLocally(responses[2]);
+                        notifyListeners();
+                    });
+            });
+        } else {
+            Promise.all([getUsersLocalData(), getArchiveLocalData(), getLocationTimeLocalData()])
                 .then(responses => {
                     currentUsers = responses[0];
-                    saveUsersLocally(currentUsers.users);
+                    saveUsersLocally(currentUsers);
                     currentArchive = responses[1];
-                    saveArchiveLocally(currentArchive.archive);
-                    currentTime = responses[2].locationTime.time;
-                    currentLocation = responses[2].locationTime.location;
-                    saveLocationTimeLocally(responses[2].locationTime);
+                    saveArchiveLocally(currentArchive);
+                    currentTime = responses[2].time;
+                    currentLocation = responses[2].location;
+                    saveLocationTimeLocally(responses[2]);
                     notifyListeners();
                 });
-        });
+        }
     }
 
     function subscribe(listener) {
@@ -207,10 +252,10 @@ export default function Store() {
                     }),
                 }
             ).then(response => response.json())
-             .then((response) => {
-                currentArchive = response;
-                notifyListeners();
-            })
+                .then((response) => {
+                    currentArchive = response;
+                    notifyListeners();
+                })
         } else if (action.type === ActionTypes.ChangeLocation) {
             fetch('/changeLocation', {
                     method: 'POST', headers: {
