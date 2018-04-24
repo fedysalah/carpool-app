@@ -70,6 +70,9 @@ if (isProd) {
             navigateFallbackWhitelist: [/^(?!\/__).*/],
             // Don't precache sourcemaps (they're large) and build asset manifest:
             staticFileGlobsIgnorePatterns: [/\.map$/, /asset-manifest\.json$/],
+            importScripts: [
+                '../../firebase-messaging.js',
+            ],
             runtimeCaching: [{
                 urlPattern: /\/users/,
                 handler: 'networkFirst'
@@ -78,6 +81,10 @@ if (isProd) {
                 handler: 'networkFirst'
             }, {
                 urlPattern: /\/locationTime/,
+                handler: 'networkFirst'
+            },
+            {
+                urlPattern: /https:\/\/www\.gstatic\.com\/firebasejs\//,
                 handler: 'networkFirst'
             }]
         }),

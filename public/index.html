@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width"/>
     <link href="/ratchet/css/ratchet.min.css" rel="stylesheet">
     <script src="/ratchet/js/ratchet.min.js" async></script>
+    <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase-app.js" async></script>
+    <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase-messaging.js" async></script>
     <link rel="manifest" href="manifest.json"/> 
     <script>
     if('serviceWorker' in navigator) {
@@ -26,6 +28,28 @@
               }
             }
           }
+          firebase.initializeApp({
+            "apiKey": "AIzaSyAtcsQKYqEoFQE35gsrLf7C7I8bczJaufI",
+            "authDomain": "carpoolapptest.firebaseapp.com",
+            "databaseURL": "https://carpoolapptest.firebaseio.com",
+            "projectId": "carpoolapptest",
+            "storageBucket": "carpoolapptest.appspot.com",
+            "messagingSenderId": "103953800507"
+            });
+          const messaging = firebase.messaging();
+          messaging.useServiceWorker(registration);
+          messaging.requestPermission()
+          .then(() => messaging.getToken())
+          .then(token => {
+            console.log('token :', token);
+            return fetch('/registerToken', {
+                            method: 'POST', 
+                            headers: {
+                              'Content-type': 'application/json'
+                            },
+                            body: JSON.stringify({token}),
+                        });
+                    })
         }).catch(function(error){
           console.log('an error occurred while service worker registration', error)
         })
