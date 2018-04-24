@@ -255,6 +255,10 @@ app.post('/saveUser', function (req, res) {
     res.json(currentArchive);
 });
 
+app.get("*", function (req, res, next) {
+    res.redirect("https://" + req.headers.host + "/" + req.path);
+});
+
 app.listen(port, () => {
     console.log(`App listening on port ${port}!`)
 });
