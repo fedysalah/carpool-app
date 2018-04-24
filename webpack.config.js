@@ -86,10 +86,13 @@ if (isProd) {
             staticFileGlobsIgnorePatterns: [/\.map$/, /asset-manifest\.json$/],
 
             runtimeCaching: [{
-                urlPattern: /\/search/,
+                urlPattern: /\/users/,
                 handler: 'networkFirst'
             }, {
-                urlPattern: /\/suggest/,
+                urlPattern: /\/archive/,
+                handler: 'networkFirst'
+            }, {
+                urlPattern: /\/locationTime/,
                 handler: 'networkFirst'
             }]
         }),
