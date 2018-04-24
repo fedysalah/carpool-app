@@ -57,7 +57,7 @@ class App extends Component {
                        href="#" onClick={() => location.reload(true)}>
                         <span className="icon icon-refresh"/>
                         <span className="badge badge-negative">1</span>
-                        <span className="tab-label">Nouvelle version</span>
+                        <span className="tab-label">New version</span>
                     </a>
                 </nav>
             </div>
