@@ -1,16 +1,8 @@
 Carpool app
 ----------------
 
-A simple carpool application using React, Firebase and Ratchet for UI.
+A simple PWA application using React and Firebase 
 
-To setup the dev env, just
-
-```
-npm install
-# the first time
-npm run init-env
-# add you firebaseUrl inside secret.json
-# ...
-npm start
-open http://localhost:8080/public/app.html
-```
+`TODO` 
+ * Add the Web App Manifest 
+ * Implement ase
