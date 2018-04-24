@@ -29,10 +29,22 @@ const config = {
 firebase.initializeApp(config);
 
 const app = express();
+app.enable('trust proxy');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(expressValidator());
+app.use(function (req, res, next) {
+    if (req.secure) {
+        next();
+    } else {
+        if (process.env.NODE_ENV === 'dev') {
+            next();
+        } else {
+            res.redirect('https://' + req.headers.host + req.url);
+        }
+    }
+});
 
 const SessionRef = process.env.NODE_ENV === 'dev'
     ? firebase.database().ref(`web/carpool/devsessions/5`)
