@@ -35,6 +35,7 @@ class App extends Component {
         return (
             <div>
                 {screen}
+
                 <nav className="bar bar-tab">
                     <a className={this.state.screen === Screens.Day ? 'tab-item active' : 'tab-item'}
                        href="#" onClick={() => this.setState({screen: Screens.Day})}>
@@ -51,6 +52,12 @@ class App extends Component {
                         <span className="icon icon-search"/>
                         <span/>
                         <span className="tab-label">Location</span>
+                    </a>
+                    <a id="new-version-alert" className='tab-item' style ={{display: 'none'}}
+                       href="#" onClick={() => location.reload(true)}>
+                        <span className="icon icon-refresh"/>
+                        <span className="badge badge-negative">1</span>
+                        <span className="tab-label">Nouvelle version</span>
                     </a>
                 </nav>
             </div>
