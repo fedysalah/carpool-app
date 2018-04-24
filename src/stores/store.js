@@ -137,7 +137,6 @@ export default function Store() {
     loadData();
 
     function loadData() {
-        if (navigator.onLine) {
             Promise.all([
                 fetch('/users', {
                     method: 'GET',
@@ -159,40 +158,13 @@ export default function Store() {
                 }).then(response => response.json())
             ]).then(responses => {
                 currentUsers = responses[0];
-                saveUsersLocally(currentUsers);
                 currentArchive = responses[1];
-                saveArchiveLocally(currentArchive);
                 currentTime = responses[2].time;
                 currentLocation = responses[2].location;
-                saveLocationTimeLocally(responses[2]);
                 notifyListeners();
             }).catch(err => {
                 console.log('Network requests have failed, this is expected if offline');
-                Promise.all([getUsersLocalData(), getArchiveLocalData(), getLocationTimeLocalData()])
-                    .then(responses => {
-                        currentUsers = responses[0];
-                        saveUsersLocally(currentUsers);
-                        currentArchive = responses[1];
-                        saveArchiveLocally(currentArchive);
-                        currentTime = responses[2].time;
-                        currentLocation = responses[2].location;
-                        saveLocationTimeLocally(responses[2]);
-                        notifyListeners();
-                    });
             });
-        } else {
-            Promise.all([getUsersLocalData(), getArchiveLocalData(), getLocationTimeLocalData()])
-                .then(responses => {
-                    currentUsers = responses[0];
-                    saveUsersLocally(currentUsers);
-                    currentArchive = responses[1];
-                    saveArchiveLocally(currentArchive);
-                    currentTime = responses[2].time;
-                    currentLocation = responses[2].location;
-                    saveLocationTimeLocally(responses[2]);
-                    notifyListeners();
-                });
-        }
     }
 
     function subscribe(listener) {

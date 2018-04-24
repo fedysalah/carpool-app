@@ -25,69 +25,6 @@
     <link rel="manifest" href="manifest.json" />
     <link href="/ratchet/css/ratchet.min.css" rel="stylesheet">
     <script src="/ratchet/js/ratchet.min.js" async></script>
-      <script>
-          if ('serviceWorker' in navigator) {
-              window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/serviceworker.js').then(function (registration) {
-                      console.log('Registration successful, scope is', registration.scope);
-                      registration.onupdatefound = function () {
-                          var installingWorker = registration.installing;
-                          installingWorker.onstatechange = function () {
-                              if (installingWorker.state === 'installed') {
-                                  if (navigator.serviceWorker.controller) {
-                                      // At this point, the old content will have been purged and
-                                      // the fresh content will have been added to the cache.
-                                      // It's the perfect time to display a "New content is
-                                      // available; please refresh." message in your web app.
-                                      document.getElementById('new-version-alert').style="";
-                                      console.log('New content is available; please refresh again.');
-                                  } else {
-                                      // At this point, everything has been precached.
-                                      // It's the perfect time to display a
-                                      // "Content is cached for offline use." message.
-                                      console.log('Content is cached for offline use, scope: ', registration.scope);
-                                  }
-                              }
-                          };
-                      };
-                      firebase.initializeApp({
-                          "apiKey": "AIzaSyAtcsQKYqEoFQE35gsrLf7C7I8bczJaufI",
-                          "authDomain": "carpoolapptest.firebaseapp.com",
-                          "databaseURL": "https://carpoolapptest.firebaseio.com",
-                          "projectId": "carpoolapptest",
-                          "storageBucket": "carpoolapptest.appspot.com",
-                          "messagingSenderId": "143803579783"
-                      });
-                      const messaging = firebase.messaging();
-                      messaging.useServiceWorker(registration);
-                      messaging.requestPermission()
-                          .then(() => messaging.getToken())
-                          .then(token => {
-                                  console.log('token :', token);
-                                  return fetch('/registerToken', {
-                                      method: 'POST', headers: {
-                                          'Content-type': 'application/json'
-                                      },
-                                      body: JSON.stringify({token}),
-                                  });
-                              }
-                          )
-                          .then(response => response.json())
-                          .catch(function (err) {
-                              console.log('Unable to get permission to notify.', err);
-                          });
-
-                      messaging.onMessage(function (payload) {
-                          console.log('notif payload', payload)
-                      });
-                  }, function (e) {
-                      return console.error("can't register service worker", e);
-                  }).catch(function (error) {
-                      console.error('Error during service worker registration:', error);
-                  });
-              });
-          }
-      </script>
   </head>
   <body>
   <noscript>
@@ -98,7 +35,6 @@
       </div>
   </noscript>
     <div id="app"></div>
-    <script type="text/javascript" src="/javascripts/bundle/carpool.js" async></script>
-    <script type="text/javascript" src="https://www.gstatic.com/firebasejs/4.13.0/firebase.js" async></script>
+    <script type="text/javascript" src="/javascripts/bundle/carpool.js"></script>
   </body>
 </html>

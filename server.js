@@ -210,8 +210,6 @@ app.post('/changeLocation', function (req, res) {
     const requestBody = req.body;
     const location = requestBody.location;
     LocationRef.set({location, time: currentTime, changed: 0});
-    console.log('tokens ', currentTokens);
-    notifyOthers('', 'Location changed', 'The location has changed', 'https://carpool.cleverapps.io');
     res.json({
         location,
         time: currentTime
@@ -222,7 +220,6 @@ app.post('/changeTime', function (req, res) {
     const requestBody = req.body;
     const time = requestBody.time;
     LocationRef.set({location: currentLocation, time, changed: 0});
-    notifyOthers('', 'Time changed', 'The Time has changed', 'https://carpool.cleverapps.io');
     res.json({
         time,
         location: currentLocation
