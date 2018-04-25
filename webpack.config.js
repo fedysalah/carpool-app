@@ -56,6 +56,9 @@ let plugins = [
                 resolve(__dirname, './public/images/icons-trans/**.*'),
                 resolve(__dirname, './public/images/*.png')
             ],
+            importScripts: [
+                 '../../firebase-messaging.js',
+             ],
             runtimeCaching: [{
                 urlPattern: /\/users/,
                 handler: 'networkFirst'
@@ -64,6 +67,10 @@ let plugins = [
                 handler: 'networkFirst'
             }, {
                 urlPattern: /\/locationTime/,
+                handler: 'networkFirst'
+            },
+            {
+                urlPattern: /https:\/\/www\.gstatic\.com\/firebasejs\//,
                 handler: 'networkFirst'
             }]
         }),
