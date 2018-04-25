@@ -3,6 +3,7 @@
     "short_name": "carpool app",
     "display": "standalone",
     "start_url": "/",
+    "gcm_sender_id": "103953800507",
     "theme_color": "#1a82cc",
     "background_color": "#ffffff",
     "icons": [
