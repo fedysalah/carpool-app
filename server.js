@@ -183,7 +183,8 @@ function notifyOthers(me, title, body, action) {
                             notification: {
                                 title,
                                 body,
-                                click_action : action
+                                click_action: action,
+                                icon: '/images/icons/android-icon-36x36.png'
                             },
                             to: token
                         })
