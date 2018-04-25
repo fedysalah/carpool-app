@@ -2,7 +2,7 @@
     "name": "The Most Awesome carpool app",
     "short_name": "carpool app",
     "display": "standalone",
-    "gcm_sender_id": "143803579783",
+    "gcm_sender_id": "103953800507",
     "start_url": "/",
     "theme_color": "#1a82cc",
     "background_color": "#ffffff",
