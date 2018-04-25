@@ -7,9 +7,9 @@
     <meta name="theme-color" content="#1a82cc">
     <link href="/ratchet/css/ratchet.min.css" rel="stylesheet">
     <script src="/ratchet/js/ratchet.min.js" async></script>
-    <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase-app.js" async/>
-    <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase-messaging.js" async/>
-    <link href="manifest.json" rel="manifest">
+    <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase-app.js" async></script>
+    <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase-messaging.js" async></script>
+    <link rel="manifest" href="manifest.json"/>
     <script>
         if ('serviceWorker' in navigator) {
              window.addEventListener('load', function () {
@@ -51,9 +51,6 @@
 								                 },
 								                 body: JSON.stringify({token}),
 								             });
-								           })
-							            .catch(function (err) {
-							               console.log('Unable to get permission to notify.', err);
 							            });
                 }, function (e) {
                     return console.error("can't register service worker", e);
