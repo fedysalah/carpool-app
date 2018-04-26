@@ -56,6 +56,7 @@ let plugins = [
             resolve(__dirname, './public/images/icons-trans/**.*'),
             resolve(__dirname, './public/images/*.png')
         ],
+        importScripts: ['../../firebase-messaging.js'],
         // offline support
         runtimeCaching: [{
             urlPattern: /\/users/,
@@ -66,7 +67,11 @@ let plugins = [
         }, {
             urlPattern: /\/locationTime/,
             handler: 'networkFirst'
-        }]
+        },
+        {
+            urlPattern: /https:\/\/www\.gstatic\.com\/firebasejs\//,
+            handler: 'networkFirst'
+         }]
     }),
     new webpack.DefinePlugin({
         '__DEV__': !isProd,
