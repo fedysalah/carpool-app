@@ -51,7 +51,13 @@
 								                 },
 								                 body: JSON.stringify({token}),
 								             });
-							            });
+							            }).catch(function (err) {
+                              console.log('Unable to get permission to notify.', err);
+                          });
+
+                      messaging.onMessage(function (payload) {
+                          console.log('notif payload', payload)
+                      });
                 }, function (e) {
                     return console.error("can't register service worker", e);
                 }).catch(function (error) {
