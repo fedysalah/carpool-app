@@ -6,6 +6,17 @@ const expressValidator = require('express-validator');
 const moment = require('moment');
 const firebase = require('firebase');
 const fetch = require('node-fetch');
+const webpush = require("web-push");
+
+const publicVapidKey =
+"BFwbGBPX9ggNKmMPMtn8a_eYfMaU28iGv8-fy8PwxoMPwZZQQKaq96RMTCBkdUvVDjgJPZ6wtBeZ2p2i09ZMihY";
+const privateVapidKey = "-UfSss_RgRG9keikyYIjZYx1UTbUIdAf9yWPwqt_jTM";
+
+webpush.setVapidDetails(
+  "mailto:test@test.com",
+  publicVapidKey,
+  privateVapidKey
+);
 
 const port = process.env.PORT || 8080;
 
@@ -80,7 +91,7 @@ let currentUsers = [];
 let currentArchive = {};
 let currentTime = {};
 let currentLocation = {};
-let currentTokens = [];
+let currentSubscriptions = [];
 
 const UsersRef = SessionRef.child('users');
 const ArchiveRef = SessionRef.child('archive');
@@ -167,40 +178,30 @@ function decrement() {
     return (1 / value);
 }
 
-function notifyOthers(me, title, body, action) {
+function notify(title, body, action) {
     Promise.all(
-        currentTokens.filter(token => token !== me)
-            .map(token => {
-                console.log('sending notif', token);
-                return fetch('https://fcm.googleapis.com/fcm/send',
-                    {
-                        method: 'POST',
-                        headers: {
-                            "Authorization": notificationApiKey,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            notification: {
-                                title,
-                                body,
-                                click_action: action,
-                                icon: '/images/icons/android-icon-36x36.png'
-                            },
-                            to: token
-                        })
-                    })
-                    .catch(error => console.log(error));
+        currentSubscriptions
+            .map(subscription => {                
+                const payload = JSON.stringify({
+                    title,
+                    body,
+                    click_action: action,
+                    icon: '/images/icons/android-icon-36x36.png'
+                });
+                return webpush
+                  .sendNotification(subscription, payload)
+                  .catch(err => console.error('err', err));                
             })
     ).catch(error => console.log(error));
 }
 
-app.post('/registerToken', function (req, res) {
-    const requestBody = req.body;
-    const token = requestBody.token;
-    if (currentTokens.indexOf(token) < 0) {
-        console.log('new token', token);
-        currentTokens.push(token);
+app.post('/subscribe', function (req, res) {
+    const subsciption = req.body;
+    
+    if (currentSubscriptions.indexOf(subsciption) < 0) {
+        currentSubscriptions.push(subsciption);
     }
+    console.log('currentSubscriptions', currentSubscriptions)
     res.json({});
 });
 
@@ -223,7 +224,7 @@ app.post('/changeLocation', function (req, res) {
     const requestBody = req.body;
     const location = requestBody.location;
     LocationRef.set({location, time: currentTime, changed: 0});
-    notifyOthers('', 'Location changed', 'The location has changed to ' + location , 'https://carpool.cleverapps.io');
+    notify('Location changed', 'The location has changed to ' + location , 'https://carpool.cleverapps.io');
     res.json({
         location,
         time: currentTime
@@ -234,7 +235,7 @@ app.post('/changeTime', function (req, res) {
     const requestBody = req.body;
     const time = requestBody.time;
     LocationRef.set({location: currentLocation, time, changed: 0});
-    notifyOthers('', 'Time changed', 'The Time has changed to ' + time , 'https://carpool.cleverapps.io');
+    notify('Time changed', 'The Time has changed to ' + time , 'https://carpool.cleverapps.io');
     res.json({
         time,
         location: currentLocation
