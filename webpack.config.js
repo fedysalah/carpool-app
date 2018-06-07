@@ -67,11 +67,7 @@ let plugins = [
         }, {
             urlPattern: /\/locationTime/,
             handler: 'networkFirst'
-        },
-        {
-            urlPattern: /https:\/\/www\.gstatic\.com\/firebasejs\//,
-            handler: 'networkFirst'
-         }]
+        }]
     }),
     new webpack.DefinePlugin({
         '__DEV__': !isProd,
