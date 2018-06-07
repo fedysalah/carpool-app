@@ -29,6 +29,27 @@
                               }
                           };
                       };
+
+                        console.log("Registering Push...");
+                    const subscription = registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array("BFwbGBPX9ggNKmMPMtn8a_eYfMaU28iGv8-fy8PwxoMPwZZQQKaq96RMTCBkdUvVDjgJPZ6wtBeZ2p2i09ZMihY")
+                    }).then(function (subscription) {
+                        console.log("Push Registered...");
+                        console.log("Sending Push...");
+                        fetch("/subscribe", {
+                            method: "POST",
+                            body: JSON.stringify(subscription),
+                            headers: {
+                                "content-type": "application/json"
+                            }
+                        }).then(function (response) {
+                            console.log("Push Sent...");
+                        });
+
+                    }).catch(function (error) {
+                        console.error('Error during pushManager subscription:', error);
+                    });
               }, function (e) {
                   return console.error("can't register service worker", e);
               }).catch(function (error) {
@@ -36,6 +57,16 @@
               });
           });
       }
+      function urlBase64ToUint8Array(base64String) {
+            const padding = "=".repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/\-/g, "+").replace(/_/g, "/");
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (var i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }     
       </script>
   </head>
   <body>

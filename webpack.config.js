@@ -72,7 +72,8 @@ let plugins = [
         }, {
             urlPattern: /\/locationTime/,
             handler: 'networkFirst'
-        }]
+        }],
+        importScripts: ['../../push-support.js']
     }),
 ];
 
