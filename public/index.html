@@ -10,53 +10,62 @@
     <link rel="manifest" href="manifest.json"/>
     <script>
         if ('serviceWorker' in navigator) {
-             window.addEventListener('load', async function () {
-                const registration = await navigator.serviceWorker.register('/serviceworker.js')
-                .catch(function (error) {
-                    console.error('Error during service worker registration:', error);
-                });  
-                console.log('Registration successful, scope is', registration.scope);  
-                registration.onupdatefound = function () {
-                    const installingWorker = registration.installing;
-                    installingWorker.onstatechange = function () {
-                        if (installingWorker.state === 'installed') {
-                            if (navigator.serviceWorker.controller) {
-                                document.getElementById('new-version-alert').style="";
-                                console.log('New content is available; please refresh again.');
-                            } else {
-                                console.log('Content is cached for offline use, scope: ', registration.scope);
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/serviceworker.js').then(function (registration) {
+                    console.log('Registration successful, scope is', registration.scope);
+                    registration.onupdatefound = function () {
+                        var installingWorker = registration.installing;
+                        installingWorker.onstatechange = function () {
+                            if (installingWorker.state === 'installed') {
+                                if (navigator.serviceWorker.controller) {
+                                    // At this point, the old content will have been purged and
+                                    // the fresh content will have been added to the cache.
+                                    // It's the perfect time to display a "New version message in your web app."
+                                    document.getElementById('new-version-alert').style="";
+                                    console.log('New content is available; please refresh again.');
+                                } else {
+                                    console.log('Content is cached for offline use, scope: ', registration.scope);
+                                }
                             }
-                        }
+                        };
                     };
-                };
-                console.log("Registering Push...");
-                const subscription = await registration.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: urlBase64ToUint8Array("BFwbGBPX9ggNKmMPMtn8a_eYfMaU28iGv8-fy8PwxoMPwZZQQKaq96RMTCBkdUvVDjgJPZ6wtBeZ2p2i09ZMihY")
-                })
-                .catch(function (error) {
-                    console.error('Error during pushManager subscription:', error);
-                });  
-                console.log("Push Registered...");
-                console.log("Sending Push...");
-                await fetch("/subscribe", {
-                    method: "POST",
-                    body: JSON.stringify(subscription),
-                    headers: {
-                        "content-type": "application/json"
-                    }
+
+                    console.log("Registering Push...");
+                    const subscription = registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array("BFwbGBPX9ggNKmMPMtn8a_eYfMaU28iGv8-fy8PwxoMPwZZQQKaq96RMTCBkdUvVDjgJPZ6wtBeZ2p2i09ZMihY")
+                    }).then(function (subscription) {
+                        console.log("Push Registered...");
+                        console.log("Sending Push...");
+                        fetch("/subscribe", {
+                            method: "POST",
+                            body: JSON.stringify(subscription),
+                            headers: {
+                                "content-type": "application/json"
+                            }
+                        }).then(function (response) {
+                            console.log("Push Sent...");
+                        });
+
+                    }).catch(function (error) {
+                        console.error('Error during pushManager subscription:', error);
+                    });
+                }, function (e) {
+                    return console.error("can't register service worker", e);
+                }).catch(function (error) {
+                    console.error('Error during service worker registration:', error);
                 });
-                console.log("Push Sent...");
-            })
+            });
         }
+
         function urlBase64ToUint8Array(base64String) {
             const padding = "=".repeat((4 - base64String.length % 4) % 4);
             const base64 = (base64String + padding).replace(/\-/g, "+").replace(/_/g, "/");
             const rawData = window.atob(base64);
             const outputArray = new Uint8Array(rawData.length);
-                for (let i = 0; i < rawData.length; ++i) {
-                    outputArray[i] = rawData.charCodeAt(i);
-                }
+            for (var i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
             return outputArray;
         }
         </script>
