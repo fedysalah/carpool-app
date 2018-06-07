@@ -6,6 +6,17 @@ const expressValidator = require('express-validator');
 const moment = require('moment');
 const firebase = require('firebase');
 const fetch = require('node-fetch');
+const webpush = require("web-push");
+
+const publicVapidKey =
+"BFwbGBPX9ggNKmMPMtn8a_eYfMaU28iGv8-fy8PwxoMPwZZQQKaq96RMTCBkdUvVDjgJPZ6wtBeZ2p2i09ZMihY";
+const privateVapidKey = "-UfSss_RgRG9keikyYIjZYx1UTbUIdAf9yWPwqt_jTM";
+
+webpush.setVapidDetails(
+  "mailto:test@test.com",
+  publicVapidKey,
+  privateVapidKey
+);
 
 const port = process.env.PORT || 8080;
 
@@ -15,7 +26,6 @@ const databaseURL = process.env.FIREBASE_DB_URL || "https://carpoolapptest.fireb
 const projectId = process.env.FIREBASE_PROJECT_ID || "carpoolapptest";
 const storageBucket = process.env.FIREBASE_STORAGE_BUCKET || "carpoolapptest.appspot.com";
 const messagingSenderId = process.env.FIREBASE_MESSAGING_SENDER_ID || "143803579783";
-const notificationApiKey = process.env.FIREBASE_NOTIFCATION_KEY || "key=AAAAIXtcfYc:APA91bFbjaRrJHEYUbrHxZDPZS7Jb7eJY5NkgIr2a2p5DqFJ0jTqdnEinQyGXfm4fWpts7papuWU1bXbHt44SrkBzUUF8mbzuVUiqQa3w8PFtcdSbDRVjodMad9YauD8EfWcv3V5mPqy";
 
 const config = {
     apiKey,
@@ -80,7 +90,7 @@ let currentUsers = [];
 let currentArchive = {};
 let currentTime = {};
 let currentLocation = {};
-let currentTokens = [];
+let currentSubscriptions = [];
 
 const UsersRef = SessionRef.child('users');
 const ArchiveRef = SessionRef.child('archive');
@@ -167,39 +177,26 @@ function decrement() {
     return (1 / value);
 }
 
-function notifyOthers(me, title, body, action) {
+function notify(title, body, action) {
     Promise.all(
-        currentTokens.filter(token => token !== me)
-            .map(token => {
-                console.log('sending notif', token);
-                return fetch('https://fcm.googleapis.com/fcm/send',
-                    {
-                        method: 'POST',
-                        headers: {
-                            "Authorization": notificationApiKey,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            notification: {
+        currentSubscriptions
+            .map(subscription => {
+                const payload = JSON.stringify({
                                 title,
                                 body,
-                                click_action: action,
                                 icon: '/images/icons/android-icon-36x36.png'
-                            },
-                            to: token
-                        })
-                    })
-                    .catch(error => console.log(error));
+                });
+                return webpush
+                  .sendNotification(subscription, payload)
+                  .catch(err => console.error('err', err));
             })
     ).catch(error => console.log(error));
 }
 
-app.post('/registerToken', function (req, res) {
-    const requestBody = req.body;
-    const token = requestBody.token;
-    if (currentTokens.indexOf(token) < 0) {
-        console.log('new token', token);
-        currentTokens.push(token);
+app.post('/subscribe', function (req, res) {
+    const subsciption = req.body;
+    if (currentSubscriptions.filter(sub => sub.endpoint && (sub.endpoint === subsciption.endpoint)).length === 0) {
+        currentSubscriptions.push(subsciption);
     }
     res.json({});
 });
