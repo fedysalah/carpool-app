@@ -26,7 +26,6 @@ const databaseURL = process.env.FIREBASE_DB_URL || "https://carpoolapptest.fireb
 const projectId = process.env.FIREBASE_PROJECT_ID || "carpoolapptest";
 const storageBucket = process.env.FIREBASE_STORAGE_BUCKET || "carpoolapptest.appspot.com";
 const messagingSenderId = process.env.FIREBASE_MESSAGING_SENDER_ID || "143803579783";
-const notificationApiKey = process.env.FIREBASE_NOTIFCATION_KEY || "key=AAAAIXtcfYc:APA91bFbjaRrJHEYUbrHxZDPZS7Jb7eJY5NkgIr2a2p5DqFJ0jTqdnEinQyGXfm4fWpts7papuWU1bXbHt44SrkBzUUF8mbzuVUiqQa3w8PFtcdSbDRVjodMad9YauD8EfWcv3V5mPqy";
 
 const config = {
     apiKey,
@@ -196,7 +195,8 @@ function notify(title, body, action) {
 
 app.post('/subscribe', function (req, res) {
     const subsciption = req.body;
-    
+    console.log('currentSubscriptions', currentSubscriptions)
+    console.log('subsciption', subsciption)
     if (currentSubscriptions.indexOf(subsciption) < 0) {
         currentSubscriptions.push(subsciption);
     }
