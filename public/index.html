@@ -7,6 +7,36 @@
     <meta name="theme-color" content="#1a82cc">
     <link href="/ratchet/css/ratchet.min.css" rel="stylesheet">
     <script src="/ratchet/js/ratchet.min.js" async></script>
+    <link rel="manifest" href="manifest.json"/>
+    <script>
+      if ('serviceWorker' in navigator) {
+           window.addEventListener('load', function () {
+              navigator.serviceWorker.register('/serviceworker.js').then(function (registration) {
+                  console.log('Registration successful, scope is', registration.scope);
+                  registration.onupdatefound = function () {
+                          var installingWorker = registration.installing;
+                          installingWorker.onstatechange = function () {
+                              if (installingWorker.state === 'installed') {
+                                  if (navigator.serviceWorker.controller) {
+                                      // At this point, the old content will have been purged and
+                                      // the fresh content will have been added to the cache.
+                                      // It's the perfect time to display a "New version message in your web app."
+                                      document.getElementById('new-version-alert').style="";
+                                      console.log('New content is available; please refresh again.');
+                                  } else {
+                                      console.log('Content is cached for offline use, scope: ', registration.scope);
+                                  }
+                              }
+                          };
+                      };
+              }, function (e) {
+                  return console.error("can't register service worker", e);
+              }).catch(function (error) {
+                  console.error('Error during service worker registration:', error);
+              });
+          });
+      }
+      </script>
   </head>
   <body>
   <noscript>
