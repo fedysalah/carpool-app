@@ -56,7 +56,7 @@ let plugins = [
             resolve(__dirname, './public/images/icons-trans/**.*'),
             resolve(__dirname, './public/images/*.png')
         ],
-        importScripts: ['../../firebase-messaging.js'],
+        importScripts: ['../../push-support.js'],
         // offline support
         runtimeCaching: [{
             urlPattern: /\/users/,

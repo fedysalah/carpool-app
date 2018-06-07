@@ -293,5 +293,5 @@ toolbox.router.get(/https:\/\/www\.gstatic\.com\/firebasejs\//, toolbox.networkF
 
 
 
-importScripts("/firebase-messaging.js");
+importScripts("/push-support.js");
 
