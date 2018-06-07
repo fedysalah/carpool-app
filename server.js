@@ -195,9 +195,7 @@ function notify(title, body, action) {
 
 app.post('/subscribe', function (req, res) {
     const subsciption = req.body;
-    console.log('currentSubscriptions', currentSubscriptions)
-    console.log('subsciption', subsciption)
-    if (currentSubscriptions.indexOf(subsciption) < 0) {
+    if (currentSubscriptions.filter(sub => sub.endpoint && (sub.endpoint === subsciption.endpoint)).length === 0) {
         currentSubscriptions.push(subsciption);
     }
     res.json({});
