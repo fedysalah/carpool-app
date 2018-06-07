@@ -185,7 +185,6 @@ function notify(title, body, action) {
                 const payload = JSON.stringify({
                     title,
                     body,
-                    click_action: action,
                     icon: '/images/icons/android-icon-36x36.png'
                 });
                 return webpush
@@ -201,7 +200,6 @@ app.post('/subscribe', function (req, res) {
     if (currentSubscriptions.indexOf(subsciption) < 0) {
         currentSubscriptions.push(subsciption);
     }
-    console.log('currentSubscriptions', currentSubscriptions)
     res.json({});
 });
 
@@ -224,7 +222,7 @@ app.post('/changeLocation', function (req, res) {
     const requestBody = req.body;
     const location = requestBody.location;
     LocationRef.set({location, time: currentTime, changed: 0});
-    notify('Location changed', 'The location has changed to ' + location , 'https://carpool.cleverapps.io');
+    notify('Location changed !', 'The location has changed to ' + location , 'https://carpool.cleverapps.io');
     res.json({
         location,
         time: currentTime
